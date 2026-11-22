@@ -7,9 +7,9 @@ import { seg, clamp01, memWeightsT, memSkills, MEM_BOX, SKILLS } from './data.js
 export const GRAPHS = [
   {
     id: 'memory', side: 'right', title: 'What fits in 80 GB',
-    text: 'In mine, 16 GB of weights came preloaded at birth. The cache holds the rest: mostly Python and cost optimization, a little MMA and hiking, and 10% kept free.',
+    text: 'Mine holds mostly Python and cost optimization, with a little MMA and hiking.',
     legend: true,
-    label: 'Kevin’s 80 GB, drawn as a GPU’s memory: 16 GB of weights, preloaded at birth, then a cache shared by Python 20%, FastAPI 10%, tokenomics 10%, cost optimization 20%, GPU sizing 10%, AI fundamentals 10%, MMA 5% and hiking 5%, with 10% in reserve.',
+    label: 'Kevin’s 80 GB, drawn as a GPU’s memory: 16 GB of weights, loaded at birth, then a cache shared by Python 20%, FastAPI 10%, tokenomics 10%, cost optimization 20%, GPU sizing 10%, AI fundamentals 10%, MMA 5% and hiking 5%, with 10% in reserve.',
   },
 ];
 
@@ -43,11 +43,12 @@ function memory(w, h) {
       from += spans[j];
     });
     s.push(R(k1 + gap, by + pad, w - k1 - gap - pad, bh - 2 * pad, 'g-box', ro));
-    s.push(T(0, ly, 'Weights 16 GB', 'g-lab', seg(q, 0.12, 0.2)), T((k0 + k1) / 2, ly, 'KV cache', 'g-lab', seg(q, 0.3, 0.36), 'middle'), T(w, ly, 'Reserve', 'g-lab', ro, 'end'));
+    // The cache is named in the caption above, so the long weights label has the row to itself on a phone.
+    s.push(T(0, ly, 'Weights (loaded at birth) 16 GB', 'g-lab', seg(q, 0.12, 0.2)), T(w, ly, 'Reserve', 'g-lab', ro, 'end'));
     // The big figure counts the weights in, then the cache as it fills; it dips out as it changes meaning.
     const a = clamp01(Math.abs(q - 0.28) / 0.025), cache = q >= 0.28;
     s.push(T(0, 44, cache ? `${Math.round((n * 5) / BLOCK)}%` : `${Math.round(MEM_BOX.weights * wt)} GB`, 'g-num', a));
-    s.push(T(0, 72, cache ? (n >= all ? 'of the cache in use, 10% in reserve' : `of the cache, loading ${now.name}`) : 'of weights, preloaded at birth', 'g-cap', a));
+    s.push(T(0, 72, cache ? (n >= all ? 'of the KV cache in use, 10% in reserve' : `of the KV cache, loading ${now.name}`) : 'of weights', 'g-cap', a));
     return s.join('');
   };
   return { frame, live };

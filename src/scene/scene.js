@@ -39,7 +39,7 @@ const TONE = { silicon: 2, oxide: 1, fin: 1, gate: 3, oxide2: 1, epi: 2, contact
 
 // Camera keys. Below the die the drawing is schematic, so those keys carry the real field-of-view width
 // (`fov`, metres, at a 16:10 screen; the fin pitch is about 28 nm). `in` names the space the target lives in; `d` is the view size in that space's units;
-// `f` is where the target sits on screen (0..1, x and y), `pf` the same on phones, `pz` the phone zoom.
+// `f` is where the target sits on screen (0..1, x and y), `pf` the same on phones, `pz` how far a phone's camera backs off (higher: smaller subject).
 // Holds come in A/B pairs: the camera drifts from A to B while the text is up.
 const rotY = (v, a) => [v[0] * Math.cos(a) + v[2] * Math.sin(a), v[1], -v[0] * Math.sin(a) + v[2] * Math.cos(a)];
 const hold = (name, k, orbit = 0.12) => ({ [`${name}A`]: k, [`${name}B`]: { ...k, dir: rotY(k.dir, orbit), p: { ...k.p, ...k.pB } } });
@@ -48,11 +48,11 @@ const ROB = { ...BASE, board: 0, sub: 0 };
 const KEYS = {
   hero: { in: 'T', t: [0, 0.75, 0], dir: [6.4, 4.4, 8.2], d: 14.5, f: [0.5, 0.5], pf: [0.5, 0.46], pz: 2.5, fov: 3.05e-7, p: { tOn: 0, eOn: 1, pace: 0 } },
   ...hold('logic', { in: 'L', t: [3, 0, 2], dir: [0.36, 0.64, 0.68], d: 250, f: [0.32, 0.5], fov: 5.3e-6, p: { tOn: 1, arr: 1, wires: 1, nand: 1 } }),
-  ...hold('core', { in: 'C', t: [0, 0, 0], dir: [0.42, 0.62, 0.66], d: 90, f: [0.5, 0.5], fov: 5.6e-3, p: { tOn: 1, arr: 1, wires: 1, toC: 1 } }),
-  ...hold('die', { in: 'D', t: [0, 1.4, 0], dir: [0.4, 0.7, 0.6], d: 92, f: [0.5, 0.5], p: { ...BASE, pkg: 0, board: 0, power: 0 } }),
-  packageA: { in: 'D', t: [0, 6, 0], dir: [0.5, 0.5, 0.71], d: 195, f: [0.5, 0.52], pz: 2.5, p: { ...BASE, expl: 1, board: 0, power: 0 } },
-  packageB: { in: 'D', t: [0, 1, 0], dir: [0.6, 0.44, 0.67], d: 190, f: [0.5, 0.52], pz: 2.5, p: { ...BASE, expl: 0, board: 0, power: 0 } },
-  ...hold('board', { in: 'D', t: [16, -2, 0], dir: [0.42, 0.6, 0.68], d: 330, f: [0.5, 0.5], pz: 2.5, p: { ...BASE, power: 0 } }),
+  ...hold('core', { in: 'C', t: [0, 0, 0], dir: [0.42, 0.62, 0.66], d: 90, f: [0.5, 0.5], pf: [0.5, 0.5], fov: 5.6e-3, p: { tOn: 1, arr: 1, wires: 1, toC: 1 } }),
+  ...hold('die', { in: 'D', t: [0, 1.4, 0], dir: [0.4, 0.7, 0.6], d: 92, f: [0.5, 0.5], pf: [0.5, 0.5], pz: 1.55, p: { ...BASE, pkg: 0, board: 0, power: 0 } }),
+  packageA: { in: 'D', t: [0, 6, 0], dir: [0.5, 0.5, 0.71], d: 195, f: [0.5, 0.52], pf: [0.5, 0.5], pz: 2.15, p: { ...BASE, expl: 1, board: 0, power: 0 } },
+  packageB: { in: 'D', t: [0, 1, 0], dir: [0.6, 0.44, 0.67], d: 190, f: [0.5, 0.52], pf: [0.5, 0.5], pz: 2.15, p: { ...BASE, expl: 0, board: 0, power: 0 } },
+  ...hold('board', { in: 'D', t: [16, -2, 0], dir: [0.42, 0.6, 0.68], d: 330, f: [0.5, 0.5], pf: [0.5, 0.5], pz: 2.1, p: { ...BASE, power: 0 } }),
   // The GPU comes round to look down on its die, and powers on.
   bootA: { in: 'D', t: [0, 1.4, 0], dir: [0.12, 0.9, 0.42], d: 132, f: [0.5, 0.4], pf: [0.5, 0.4], pz: 2.5, p: { ...BASE, board: 0, sub: 0 },
     win: { power: [0.8, 0.98, 'inOut'], cam: [0.3, 1, 'inOut'] } },
@@ -60,13 +60,13 @@ const KEYS = {
   // The robot (robot.js), in millimetres around the chip, facing +z. Its parts come on around the GPU as the
   // camera pulls back and the chip rises out of the way; the arms assemble, the camera pulls out to the torso,
   // then the legs; the chip comes down into the open head, which closes on it; the body lights up.
-  ...hold('arm', { in: 'D', t: [330, -440, 70], dir: [0.9, 0.14, 0.42], d: 1250, f: [0.5, 0.52], pf: [0.5, 0.45], pz: 2.2, p: { ...ROB, robIn: 1, chipUp: 1, arm: 0 }, pB: { arm: 1 },
+  ...hold('arm', { in: 'D', t: [330, -440, 70], dir: [0.9, 0.14, 0.42], d: 1250, f: [0.5, 0.52], pf: [0.5, 0.51], pz: 2.2, p: { ...ROB, robIn: 1, chipUp: 1, arm: 0 }, pB: { arm: 1 },
     win: { robIn: [0.45, 1, 'out'], chipUp: [0, 0.7] } }, 0.1),
-  ...hold('torso', { in: 'D', t: [0, -380, 0], dir: [0.56, 0.2, 0.8], d: 1500, f: [0.5, 0.5], pz: 1.8, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 0 }, pB: { torso: 1 } }),
-  ...hold('legs', { in: 'D', t: [0, -650, 0], dir: [0.42, 0.14, 0.9], d: 2800, f: [0.5, 0.5], pz: 1.2, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 1, legs: 0 }, pB: { legs: 1 } }),
+  ...hold('torso', { in: 'D', t: [0, -380, 0], dir: [0.56, 0.2, 0.8], d: 1500, f: [0.5, 0.5], pf: [0.5, 0.47], pz: 1.8, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 0 }, pB: { torso: 1 } }),
+  ...hold('legs', { in: 'D', t: [0, -650, 0], dir: [0.42, 0.14, 0.9], d: 2800, f: [0.5, 0.5], pf: [0.5, 0.52], pz: 1.32, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 1, legs: 0 }, pB: { legs: 1 } }),
   ...hold('brain', { in: 'D', t: [0, 85, -40], dir: [0.4, 0.42, 0.82], d: 700, f: [0.5, 0.5], pz: 2.1, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 1, legs: 1, head: 0 }, pB: { head: 1 } }, 0.1),
   // The light-up fires most of the way out, with the whole body coming into view.
-  ...hold('body', { in: 'D', t: [0, -575, 0], dir: [0.3, 0.1, 0.95], d: 2650, f: [0.68, 0.5], pf: [0.5, 0.3], pz: 1.9, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 1, legs: 1, head: 1, glow: 1 }, win: { glow: [0.75, 0.8] } }, 0.16),
+  ...hold('body', { in: 'D', t: [0, -575, 0], dir: [0.3, 0.1, 0.95], d: 2650, f: [0.68, 0.5], pf: [0.5, 0.34], pz: 1.9, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 1, legs: 1, head: 1, glow: 1 }, win: { glow: [0.75, 0.8] } }, 0.16),
   // Into the chip in the robot's head, for the memory chart: the head opens first, the camera comes round to
   // look down into it (via), and the robot leaves only at the very end of the move, once the chip fills the
   // view. B drifts on from A without the curve.

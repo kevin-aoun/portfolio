@@ -5,6 +5,8 @@
 .sec-work { --label: 11rem; }
 .sec-certs { padding-top: var(--gap-section); }
 .sec h2 { font-family: var(--display-face); font-weight: var(--display-weight); font-size: var(--step-head); line-height: var(--display-leading); letter-spacing: var(--display-tracking); margin-bottom: clamp(36px, 4.5vw, 64px); }
+/* Each heading is a snap point (proximity, base.css), landing just under the bar with its block filling the screen. */
+.sec h2 { scroll-snap-align: start; scroll-margin-top: 24px; }
 .sec h3 { font-size: var(--step-lead); font-weight: 500; line-height: 1.2; }
 .sec p { max-width: 62ch; }
 
@@ -65,8 +67,8 @@
 .creds span { color: var(--muted); }
 
 /* Links in lists keep a quiet underline at rest, so they read as links on a touch screen too. */
-.pj-name, .posts a, .skills a, .ct-links a:not(.btn) { text-decoration-color: var(--faint); transition: color 200ms, text-decoration-color 200ms; }
-.pj-name:hover, .posts a:hover, .skills a:hover, .ct-links a:not(.btn):hover { color: var(--hue); text-decoration-color: currentColor; }
+.pj-name, .posts a { text-decoration-color: var(--faint); transition: color 200ms, text-decoration-color 200ms; }
+.pj-name:hover, .posts a:hover { color: var(--hue); text-decoration-color: currentColor; }
 
 /* ---- Projects: the index and the card that follows it. */
 .pj { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(40px, 6vw, 112px); align-items: start; }
@@ -97,7 +99,7 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
   .pj-row.on .pj-name { color: var(--hue); }
 }
 
-/* ---- Writing: the heading holds the left of the grid, the two lists the right. */
+/* ---- Writing: the heading holds the left of the grid, the posts the right. */
 .sec-writing { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); column-gap: clamp(40px, 6vw, 112px); align-items: start; }
 .sec-writing h2 { margin-bottom: 0; }
 .wr { display: grid; row-gap: clamp(56px, 6vw, 96px); }
@@ -105,8 +107,6 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
 .posts li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); column-gap: 24px; align-items: baseline; padding: 8px 0; }
 .posts a { grid-column: 2; grid-row: 1; font-size: var(--step-lead); line-height: 1.3; }
 .posts .date { grid-column: 1; grid-row: 1; font-size: var(--step-small); color: var(--muted); font-variant-numeric: tabular-nums; }
-.skills li { display: grid; grid-template-columns: minmax(0, 17.5rem) minmax(0, 1fr); column-gap: 24px; align-items: baseline; padding: 8px 0; }
-.skills a { font-weight: 500; overflow-wrap: anywhere; }
 
 /* ---- Contact: the composer, read back as tokens, and the ways to reach me. */
 /* The last section sits on its own field, one tone up: the page's one change of ground. */
@@ -129,19 +129,24 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
 .composer .btn { justify-self: start; margin-top: 16px; }
 .ct-sent { font-size: var(--step-small); color: var(--muted); }
 .ct-sent button { display: inline-block; padding: 8px 0; margin: -8px 0; border: 0; background: none; color: var(--ink); font-weight: 500; text-decoration: underline; text-decoration-color: var(--hue); text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; cursor: pointer; }
-.ct-links { display: grid; justify-items: start; gap: 8px; line-height: 1.3; padding-top: 2.1em; }
-.ct-links a { overflow-wrap: anywhere; }
-.ct-links .btn { margin-bottom: 16px; }
+/* Links out, as on Kevin's blog (its .site-footer): an 18px arrow, the name, muted until pointed at, the rows
+   0.55rem apart. */
+.ln { display: inline-flex; align-items: center; gap: 0.55rem; color: var(--muted); text-decoration: none; font-size: 0.95rem; transition: color 150ms ease; }
+.ln-icon { width: 18px; height: 18px; flex: none; }
+@media (hover: hover) and (pointer: fine) { .ln:hover { color: var(--ink); } }
+.ct-links { padding-top: 2.1em; line-height: 1.3; }
+.ct-links li { margin: 0.55rem 0; }
+.ct-links .ln { overflow-wrap: anywhere; }
+.ct-links .ct-call { margin: 0 0 24px; }
 /* The band is a tone up; every token colour keeps AA on it in both themes. */
-.sec-contact a:not(.btn):hover, .ct-sent button:hover { color: var(--hue); }
+.ct-sent button:hover { color: var(--hue); }
 
 /* ---- The footer: the name across the width, and one line. */
 /* The grove grows right up to the contact band; its faded top rows are the only rest before the footer. */
 .foot { padding: clamp(16px, 2vw, 28px) var(--margin) clamp(28px, 3vw, 44px); }
 .foot-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 24px; margin-top: 28px; font-size: var(--step-small); color: var(--muted); }
 .foot-line span { margin-right: auto; }
-.foot-line a { color: var(--ink); text-decoration-color: transparent; }
-.foot-line a:hover { text-decoration-color: var(--hue); }
+
 
 /* Below 1100px the trace takes the full width and each organisation's name its own line above its row,
    which leaves room above a short bar for its name. */
@@ -156,31 +161,64 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
   .creds { margin-top: 64px; }
   .sec-writing h2 { margin-bottom: clamp(36px, 4.5vw, 64px); }
   .ct-links { padding-top: 0; margin-top: 64px; }
+  .ct-links .ct-call { display: flex; justify-content: center; }
 }
-/* Narrow screens, and any screen without JavaScript (no card can follow the list): each project shows its
-   own drawing. */
-@media (max-width: 959px), (scripting: none) {
+/* A desktop without JavaScript: no card can follow the list, so each project shows its own drawing. */
+@media (min-width: 960px) and (scripting: none) {
   .pj { grid-template-columns: minmax(0, 1fr); }
   .pj-stage { display: none; }
-  .pj-inline { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; margin-top: 16px; padding: 16px; border-radius: var(--radius-panel); background: var(--glass); border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(24px) saturate(1.6); backdrop-filter: blur(24px) saturate(1.6); }
-}
-@media (min-width: 600px) and (max-width: 959px), (min-width: 600px) and (scripting: none) {
   .pj-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); grid-template-rows: auto 1fr; column-gap: 32px; align-items: start; }
-  .pj-row .pj-inline { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
+  .pj-inline { display: block; grid-column: 2; grid-row: 1 / span 2; width: 100%; height: auto; aspect-ratio: 2 / 1; padding: 16px; border-radius: var(--radius-panel); background: var(--glass); border: 1px solid var(--glass-edge); }
+}
+/* Phones and tablets: the projects are a carousel, one card each (the drawing in a square, then the words),
+   swiped with the browser's own scroll and snap, one card per swipe. The next card peeks in at the edge, the
+   cards all take the tallest one's height, and the dots under them follow (motion.js). */
+.pj-dots { display: none; }
+@media (max-width: 959px) {
+  .pj { grid-template-columns: minmax(0, 1fr); }
+  .pj-stage { display: none; }
+  .pj-list { display: flex; gap: 16px; margin: 0 calc(-1 * var(--margin)); padding: 4px var(--margin) 8px; scroll-padding-inline: var(--margin); overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+  .pj-list::-webkit-scrollbar { display: none; }
+  .pj-row { flex: 0 0 min(84%, 26rem); display: flex; flex-direction: column; padding: 14px 14px 24px; scroll-snap-align: start; scroll-snap-stop: always; border-radius: var(--radius-panel); background: var(--glass); border: 1px solid var(--glass-edge); }
+  .pj-row .pj-inline { display: block; order: -1; width: 100%; height: auto; aspect-ratio: 1; margin-bottom: 28px; padding: 14%; border-radius: calc(var(--radius-panel) - 4px); background: var(--bg-2); }
+  .pj-row .pj-head, .pj-row .pj-text { padding: 0 6px; }
+  .js .pj-dots { display: flex; justify-content: center; margin-top: 16px; }
+  .pj-dots button { position: relative; width: 24px; height: 32px; padding: 0; border: 0; background: none; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .pj-dots button::before { content: ""; position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 3px; background: var(--faint); transition: width 300ms var(--ease-out), margin-left 300ms var(--ease-out), background-color 300ms; }
+  .pj-dots button[aria-current="true"]::before { width: 20px; margin-left: -10px; background: var(--ink); }
+  /* As a card slides off to either side it fades and settles back a little. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .pj-row { animation: pj-slide linear both; animation-timeline: view(inline); }
+    }
+  }
+}
+@keyframes pj-slide { 0%, 100% { opacity: 0.4; scale: 0.94; } 32%, 68% { opacity: 1; scale: 1; } }
+/* Phones and tablets: the roles are one vertical timeline instead of the trace above a list. A rail runs down
+   their left with a node per role in its organisation's colour; the rail fills as you read down it, and the
+   role at the middle of the screen lights up (motion.js sets --p, .past and .hot). */
+@media (max-width: 959px) {
+  .trace { display: none; }
+  .jobs { position: relative; row-gap: 32px; padding-left: 36px; }
+  .jobs::before, .jobs::after { content: ""; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 2px; border-radius: 1px; background: var(--faint); }
+  .jobs::after { background: var(--ink); transform-origin: top; transform: scaleY(var(--p, 0)); }
+  .job { position: relative; grid-template-columns: minmax(0, 1fr); row-gap: 2px; -webkit-tap-highlight-color: transparent; }
+  .job::before { content: ""; position: absolute; left: -36px; top: 0.15em; width: 16px; height: 16px; box-sizing: border-box; border-radius: 50%; border: 2px solid var(--faint); background: var(--bg); transition: border-color 300ms, background-color 300ms, box-shadow 300ms var(--ease-out); }
+  .job.past::before { border-color: var(--hue); }
+  .job.hot::before { border-color: var(--hue); background: var(--hue); box-shadow: 0 0 0 6px color-mix(in oklab, var(--hue) 22%, transparent); }
+  .job-what { color: var(--muted); transition: color 300ms; }
+  .job.hot .job-what { color: var(--ink); }
 }
 /* Without JavaScript the reader cannot read anything, so only the form is left. */
 @media (scripting: none) {
   .reader { display: none; }
 }
 @media (max-width: 720px) {
-  .job { grid-template-columns: minmax(0, 1fr); row-gap: 2px; }
-  .posts li, .skills li { grid-template-columns: minmax(0, 1fr); row-gap: 0; padding: 0 0 8px; }
+  .posts li { grid-template-columns: minmax(0, 1fr); row-gap: 0; padding: 0 0 8px; }
   .posts a, .posts .date { grid-column: 1; grid-row: auto; }
   /* Touch: every link in a list is a row about 44px tall. */
-  .posts a, .skills a, .ct-links a:not(.btn) { display: block; padding: 12px 0; }
+  .posts a { display: block; padding: 12px 0; }
   .pj-name { display: inline-block; padding: 8px 0; }
-  .ct-links { gap: 0; }
-  .foot-line a { padding: 12px 0; }
 }
 
 /* The palettes (src/palettes.js): every section is a block in its own colours, full width, with the template's paper

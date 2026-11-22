@@ -40,7 +40,7 @@ const helloPanel = () => `
     .map((x, i) => `<span class="ntok${x.t.startsWith(' ') ? ' lead' : ''}" aria-hidden="true"><span class="nbg tk tk${i % 5}"></span><span class="nt">${esc(x.t)}</span><span class="nid" data-ui>${x.id}</span></span>`)
     .join('')}</h2>
   <p class="hello-lead">${esc(hello.lead)}</p>
-  <p class="hello-actions"><a class="btn" href="${person.call}"${ext(person.call)}>Book a call</a><a class="textlink" href="mailto:${person.email}">${person.email}</a></p>
+  <p class="hello-actions"><a class="btn btn-cta" href="${person.call}"${ext(person.call)}>Book a call</a><a class="textlink" href="mailto:${person.email}">${person.email}</a></p>
 </article>`;
 
 export const story = () => `

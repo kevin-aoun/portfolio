@@ -1,12 +1,14 @@
 // Certifications, projects, writing, work, contact and the footer, rendered to static HTML at build time (vite.config.js)
 // and by the bench in dev/sections.html. Their look lives in styles/sections.css, their motion in motion.js.
 import { fieldMarkup } from '../footer/field.js';
-import { person, work, credentials, certifications, projects, writing, skills, pricing, idNote } from '../content.js';
+import { person, work, credentials, certifications, projects, writing, pricing, idNote } from '../content.js';
 import { tokenMarkup, tokenSwitch } from '../tokens.js';
 import { cost } from '../contact.js';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const ext = (href) => (href.startsWith('http') ? ' target="_blank" rel="noopener"' : '');
+// A link out, as on Kevin's blog: Lucide's arrow-up-right, then the name.
+const out = (href, label) => `<a class="ln" href="${href}"${ext(href)}><svg class="ln-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg><span>${esc(label)}</span></a>`;
 
 // ---- Work: the roles as a profiler trace (one row per organisation, like an Nsight Systems timeline),
 // then the same roles as a list, and the credentials.
@@ -166,6 +168,7 @@ export const projectsSection = () => `
         ${art(p, ' pj-inline')}
       </li>`).join('')}
     </ul>
+    <div class="pj-dots">${projects.map((p, i) => `<button type="button" aria-label="Show ${esc(p.name)}"${i ? '' : ' aria-current="true"'}></button>`).join('')}</div>
     <div class="pj-stage hues" aria-hidden="true">${projects.map((p, i) => {
       const cls = `pj-card${i ? '' : ' on'}`, body = `${art(p, '')}<p class="pj-title">${esc(p.name)}</p>`;
       // With a repo the card opens it too, out of the tab order: the list's link is the way in for keyboards.
@@ -177,7 +180,7 @@ export const projectsSection = () => `
   </div>
 </section>`;
 
-// ---- Writing: the posts, newest first, and the Claude Code skills.
+// ---- Writing: the posts, newest first.
 export const writingSection = () => `
 <section class="sec sec-writing" id="writing" aria-labelledby="writing-title">
   <h2 id="writing-title">Writing</h2>
@@ -185,10 +188,6 @@ export const writingSection = () => `
     <div class="wr-group">
       <h3>On the blog</h3>
       <ul class="posts hues">${writing.map((w) => `<li><a href="${w.href}"${ext(w.href)}>${esc(w.title)}</a><span class="date">${esc(w.date)}</span></li>`).join('')}</ul>
-    </div>
-    <div class="wr-group">
-      <h3>Claude Code skills I’ve built</h3>
-      <ul class="skills hues">${skills.map((s) => `<li><a href="${s.href}"${ext(s.href)}>${esc(s.name)}</a><span>${esc(s.text)}</span></li>`).join('')}</ul>
     </div>
   </div>
 </section>`;
@@ -225,9 +224,9 @@ export const contactSection = () => `
       <p class="ct-sent" hidden>Didn’t open? <button type="button">Copy the message</button> and send it to ${person.email}.</p>
     </form>
     <ul class="ct-links hues">
-      <li><a class="btn" href="${person.call}"${ext(person.call)}>Book a call</a></li>
-      <li><a href="mailto:${person.email}">${person.email}</a></li>
-      ${person.links.map((l) => `<li><a href="${l.href}"${ext(l.href)}>${esc(l.label)}</a></li>`).join('')}
+      <li class="ct-call"><a class="btn btn-cta" href="${person.call}"${ext(person.call)}>Book a call</a></li>
+      <li>${out(`mailto:${person.email}`, person.email)}</li>
+      ${person.links.map((l) => `<li>${out(l.href, l.label)}</li>`).join('')}
     </ul>
   </div>
 </section>`;
@@ -237,5 +236,5 @@ const footLinks = ['GitHub', 'LinkedIn'].map((l) => person.links.find((x) => x.l
 export const footer = () => `
 <footer class="foot">
   ${fieldMarkup()}
-  <p class="foot-line hues"><span>© ${today.getFullYear()} ${esc(person.name)}, ${esc(person.role)} in Beirut</span>${footLinks.map((l) => `<a href="${l.href}"${ext(l.href)}>${l.label}</a>`).join('')}<a href="mailto:${person.email}">Email</a></p>
+  <p class="foot-line hues"><span>© ${today.getFullYear()} ${esc(person.name)}, ${esc(person.role)} in Beirut</span>${footLinks.map((l) => out(l.href, l.label)).join('')}${out(`mailto:${person.email}`, 'Email')}</p>
 </footer>`;

@@ -50,7 +50,7 @@ export const work = [
 
 export const credentials = [
   { name: 'BE in Mechatronics', where: 'Lebanese American University, Honors Program' },
-  { name: 'Robotics', where: 'Technical University of Munich' },
+  { name: 'Offer holder · Robotics', where: 'Technical University of Munich' },
   { name: 'First place, Google Solution Challenge', where: 'MENA region' },
 ];
 
@@ -77,12 +77,4 @@ export const writing = [
   { title: 'A framework for interacting with AI', date: 'Sep 2026', href: 'https://blog.kevinaoun.dev/essays/ai/a-framework-for-interacting-with-ai.html' },
   { title: 'Anatomy of a durable agent run using Temporal', date: 'Jul 2026', href: 'https://blog.kevinaoun.dev/tech/durable-agents/anatomy-of-a-durable-agent-run.html' },
   { title: 'Putting LLMs and GenAI to work', date: 'Feb 2024', href: 'https://blog.kevinaoun.dev/tech/putting-llms-and-genai-to-work.html' },
-];
-
-export const skills = [
-  { name: 'agent-swarm-orchestration', text: 'Run a multi-agent coding swarm from one task tree', href: 'https://github.com/kevin-aoun/skills/tree/main/agent-swarm-orchestration' },
-  { name: 'grill-me', text: 'Pressure-test a draft with adversarial reviewers', href: 'https://github.com/kevin-aoun/skills/tree/main/grill-me' },
-  { name: 'deckify', text: 'Build HTML slide decks in a reasoning-first style', href: 'https://github.com/kevin-aoun/skills/tree/main/deckify' },
-  { name: 'readme', text: 'Turn a repo’s docs into a README hub', href: 'https://github.com/kevin-aoun/skills/tree/main/readme' },
-  { name: 'progress-report', text: 'One slide: done, in progress, next', href: 'https://github.com/kevin-aoun/skills/tree/main/progress-report' },
 ];

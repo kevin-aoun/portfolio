@@ -19,7 +19,9 @@ const GROUPS = [
 
 export function initSections({ reduced = false } = {}) {
   projectCards(reduced);
+  carousel(reduced);
   trace();
+  timeline(reduced);
   navCurrent();
   if (reduced) return;
   for (const [sel, partSel] of GROUPS) {
@@ -54,6 +56,43 @@ function navCurrent() {
   const mark = (id) => links.forEach((a) => (a.hash === `#${id}` ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
   const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && mark(e.target === story ? '' : e.target.id)), { rootMargin: '-40% 0px -60% 0px' });
   targets.forEach((el) => io.observe(el));
+}
+
+// Phones and tablets: the projects carousel (sections.css). Its dots follow the card in view, and a tap on
+// one slides there.
+function carousel(reduced) {
+  const track = document.querySelector('.pj-list'), dots = [...document.querySelectorAll('.pj-dots button')];
+  if (!track || !dots.length) return;
+  const cards = [...track.children];
+  const show = (i) => dots.forEach((d, k) => (k === i ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current')));
+  const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && show(cards.indexOf(e.target))), { root: track, threshold: 0.6 });
+  cards.forEach((c) => io.observe(c));
+  dots.forEach((d, i) => d.addEventListener('click', () => track.scrollTo({ left: cards[i].offsetLeft - cards[0].offsetLeft, behavior: reduced ? 'instant' : 'smooth' })));
+}
+
+// Phones and tablets: the roles as a vertical timeline (sections.css). The rail fills down to the middle of the
+// screen; the role there lights up and the ones above it keep their colour. A tap on a role brings it there.
+function timeline(reduced) {
+  const list = document.querySelector('.jobs');
+  if (!list) return;
+  const jobs = [...list.children], narrow = matchMedia('(max-width: 959px)');
+  let raf = 0, seen = false;
+  const update = () => {
+    raf = 0;
+    const mid = innerHeight / 2, r = list.getBoundingClientRect();
+    list.style.setProperty('--p', Math.min(1, Math.max(0, (mid - r.top) / r.height)).toFixed(3));
+    const cur = jobs.findLastIndex((j) => j.getBoundingClientRect().top <= mid);
+    jobs.forEach((j, i) => { j.classList.toggle('hot', i === cur); j.classList.toggle('past', i < cur); });
+  };
+  const queue = () => { if (seen && narrow.matches && !raf) raf = requestAnimationFrame(update); };
+  new IntersectionObserver(([e]) => { seen = e.isIntersecting; queue(); }).observe(list);
+  addEventListener('scroll', queue, { passive: true });
+  // Wider again, the trace is back and it lights roles on hover itself.
+  narrow.addEventListener('change', () => { if (narrow.matches) return queue(); list.style.removeProperty('--p'); jobs.forEach((j) => j.classList.remove('hot', 'past')); });
+  list.addEventListener('click', (e) => {
+    const job = e.target.closest('.job');
+    if (job && narrow.matches && !e.target.closest('a')) job.scrollIntoView({ block: 'center', behavior: reduced ? 'instant' : 'smooth' });
+  });
 }
 
 // Projects: the row you point at, focus or scroll past the middle of the screen brings up its card.
@@ -107,8 +146,9 @@ function trace() {
   new ResizeObserver(place).observe(box);
   document.fonts?.ready.then(place);
   const light = (i, on) => document.querySelectorAll(`[data-job="${i}"]`).forEach((el) => el.classList.toggle('hot', on));
+  // A mouse only: a tap fires both, and on phones the timeline decides which role is lit.
   document.querySelectorAll('[data-job]').forEach((el) => {
-    el.addEventListener('pointerenter', () => light(el.dataset.job, true));
-    el.addEventListener('pointerleave', () => light(el.dataset.job, false));
+    el.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && light(el.dataset.job, true));
+    el.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && light(el.dataset.job, false));
   });
 }
