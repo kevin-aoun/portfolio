@@ -1,0 +1,8 @@
+// Cloudflare Workers: the site is static files only (no Worker script), served from the Vite build.
+// The name must match the Worker's name in the Cloudflare dashboard, or Workers Builds refuses to deploy.
+// dist/_headers (from public/) still applies: Workers static assets read it.
+{
+  "name": "portfolio",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./dist" }
+}

@@ -25,7 +25,7 @@ npm run build      # production build in dist/
 npm run preview    # serve dist/
 ```
 
-It deploys as static files (the contact box opens the visitor's mail app; nothing runs on a server): upload `dist/` to Cloudflare Pages, or `npx wrangler pages deploy dist`. `public/_headers` lets browsers keep the hashed files under `/assets` for good. It is meant for https://kevinaoun.dev (the canonical and link-preview tags in `index.html`; the preview image is `public/og.jpg`), with the blog at https://blog.kevinaoun.dev.
+It deploys as static files (the contact box opens the visitor's mail app; nothing runs on a server): Cloudflare Workers builds it from GitHub on every push to `main` (`npm run build`, then `npx wrangler deploy`, which serves `dist/` as static assets per `wrangler.jsonc`). `public/_headers` lets browsers keep the hashed files under `/assets` for good. It is meant for https://kevinaoun.dev (the canonical and link-preview tags in `index.html`; the preview image is `public/og.jpg`), with the blog at https://blog.kevinaoun.dev.
 
 ## Where things live
 
