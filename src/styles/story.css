@@ -1,0 +1,97 @@
+/* The story: a full-screen stage pinned while an empty track scrolls past it. Panels sit in the stage,
+   left or right of the subject, and the scroll timeline moves them in and out. */
+.story { position: relative; display: grid; }
+.stage, .track { grid-area: 1 / 1; }
+.stage { position: sticky; top: 0; height: 100svh; overflow: hidden; z-index: 1; } /* clear: the page's aura and grid are its ground until the 3D draws them */
+.track { height: var(--track, 2600svh); pointer-events: none; }
+.gl { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* Callouts: a dot on the part, a leader out to a lane clear of the subject, the name at its end. */
+.tags { position: absolute; inset: 0; pointer-events: none; }
+.tag { position: absolute; left: 0; top: 0; font-size: var(--step-small); line-height: 1.25; white-space: nowrap; color: var(--ink); opacity: 0; transition: opacity 320ms; will-change: transform, opacity; }
+.tag.on { opacity: 1; }
+.leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; color: var(--muted); }
+.leaders .ld { stroke: currentColor; stroke-width: 1; fill: none; transition: opacity 320ms; }
+.leaders .dot { fill: var(--c0); }
+.leaders .dot:nth-of-type(5n+2) { fill: var(--c1); }
+.leaders .dot:nth-of-type(5n+3) { fill: var(--c2); }
+.leaders .dot:nth-of-type(5n+4) { fill: var(--c3); }
+.leaders .dot:nth-of-type(5n+5) { fill: var(--c4); }
+
+.scalebar { position: absolute; right: var(--margin); bottom: 28px; display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; font-size: var(--step-small); color: var(--muted); font-variant-numeric: tabular-nums; transition: opacity 400ms; }
+.scalebar i { grid-row: 1; height: 4px; width: var(--sb, 120px); background: var(--ink); border-radius: 2px; transition: width 200ms; }
+.scalebar .sb-len { grid-row: 1; color: var(--ink); }
+.scalebar .sb-fov { grid-column: 1 / -1; margin-top: 4px; }
+
+/* Panels. */
+.panels { position: absolute; inset: 0; pointer-events: none; }
+/* Centred in the space under the bar, not on the whole screen, so a tall card clears the bar. */
+.panel { position: absolute; top: calc(50% + (var(--bar-top) + var(--bar-h)) / 2); translate: 0 -50%; width: min(31rem, 36vw); pointer-events: auto; }
+.panel[data-side="left"] { left: calc(var(--margin) + 2vw); }
+.panel[data-side="right"] { right: calc(var(--margin) + 2vw); }
+.ptitle { font-family: var(--display-face); font-weight: var(--display-weight); font-size: var(--step-head); line-height: 1.02; letter-spacing: var(--display-tracking); text-wrap: balance; margin-bottom: 0.4em; }
+.ptext { font-size: var(--step-lead); line-height: 1.42; max-width: 30ch; }
+/* Off-stage panels are transparent, not hidden, so screen readers still read the whole story in order. */
+.js .panel { opacity: 0; pointer-events: none; }
+.js .panel.live { opacity: 1; pointer-events: auto; }
+
+/* The name in its tokens, with each token's ID under it. */
+.hello-panel { left: var(--margin); right: var(--margin); width: auto; top: auto; bottom: 9svh; translate: none; }
+.tokname { --nfs: min(14rem, calc((100vw - 2 * var(--margin)) / var(--name-em))); display: flex; flex-wrap: nowrap; font-family: var(--display-face); font-weight: var(--display-weight); font-size: var(--nfs); line-height: 0.92; letter-spacing: var(--display-tracking); }
+.ntok { display: inline-grid; grid-template-rows: auto auto; justify-items: start; }
+.nbg, .nt { grid-area: 1 / 1; }
+.nbg { justify-self: stretch; align-self: stretch; transform-origin: 0 50%; }
+.nt { position: relative; display: block; padding: 0.06em 0.03em 0.02em; white-space: pre; }
+.nid { grid-area: 2 / 1; font-family: var(--mono-face); font-size: var(--step-small); font-weight: 500; letter-spacing: 0; line-height: 1.6; color: var(--ink); font-variant-numeric: tabular-nums; padding-left: 0.25em; }
+.hello-lead { margin-top: 36px; max-width: 40ch; font-size: var(--step-lead); line-height: 1.4; }
+.hello-actions { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
+
+/* Without JavaScript the stage is just the page: panels stack and read in order. */
+html:not(.js) .stage { position: relative; height: auto; overflow: visible; }
+html:not(.js) .track, html:not(.js) .gl, html:not(.js) .tags, html:not(.js) .leaders, html:not(.js) .scalebar { display: none; }
+html:not(.js) .panels { position: static; display: grid; grid-template-columns: minmax(0, 1fr); gap: 96px; padding: 140px var(--margin) 96px; }
+html:not(.js) .panel { position: static; translate: none; width: auto; max-width: 44rem; }
+html:not(.js) .hello-panel { padding: 0; } /* the name is sized to the screen less its margins, which .panels already gives */
+
+@media (max-width: 900px), (max-width: 1000px) and (max-height: 500px) {
+  .panel { left: 8px !important; right: 8px !important; width: auto; top: auto; bottom: 8px; translate: none; padding: 20px; border-radius: var(--radius-panel); background: var(--card); }
+  .ptitle { font-size: 2rem; }
+  .ptext { font-size: var(--step-body); max-width: none; }
+  .hello-panel { --name-em: 6.2; }
+  .nid { font-size: 0.8125rem; padding-left: 0.15em; }
+  /* A token that starts with a space gets its ID under its first letter, so neighbouring IDs never touch. */
+  .ntok.lead .nid { padding-left: calc(var(--nfs) * 0.28); }
+  .hello-panel { background: none; padding: 0 var(--margin); left: 0 !important; right: 0 !important; bottom: 7svh; }
+  .scalebar { right: auto; left: 16px; top: calc(var(--bar-top) + var(--bar-h) + 12px); bottom: auto; }
+  .counts { gap: 20px; }
+}
+/* Phones in landscape: every card fits between the bar and the bottom edge. */
+@media (max-width: 1000px) and (max-height: 500px) {
+  .js .panel { max-height: calc(100svh - var(--bar-top) - var(--bar-h) - 16px); }
+  .hello-panel { --name-em: 9.3; bottom: 12px; }
+  .hello-lead { margin-top: 16px; }
+  .hello-actions { margin-top: 16px; }
+}
+
+/* Beta: the story's ground is its palette too, so a stage drawn at less than full opacity stays that colour. */
+[data-look="beta"] .story[data-pal] { background-color: var(--bg); }
+
+/* The scale bar belongs to the zoom. */
+.js .scalebar { opacity: 0; }
+.js .scalebar.on { opacity: 1; }
+
+/* "Now it can talk": one large line, read right to left as it scrolls past. Words light up as they
+   cross the reading point; the first sentence's words take the token colours in turn. */
+.marquee-panel { left: 0; right: 0; width: auto; top: auto; bottom: 12svh; translate: none; overflow: visible; }
+.marquee { display: inline-block; white-space: nowrap; font-family: var(--display-face); font-weight: var(--display-weight); font-size: clamp(3.25rem, 1.2rem + 6vw, 8.5rem); line-height: 1.04; letter-spacing: -0.04em; padding-bottom: 0.08em; will-change: transform; }
+.js .marquee .word { color: var(--unread); transition: color 220ms; }
+.js .marquee .word.read { color: var(--ink); }
+.js .marquee .mq-lead .word.read { color: var(--c0); }
+.js .marquee .mq-lead .word:nth-of-type(5n+2).read { color: var(--c1); }
+.js .marquee .mq-lead .word:nth-of-type(5n+3).read { color: var(--c2); }
+.js .marquee .mq-lead .word:nth-of-type(5n+4).read { color: var(--c3); }
+.js .marquee .mq-lead .word:nth-of-type(5n+5).read { color: var(--c4); }
+html:not(.js) .marquee, .marquee-panel .marquee:not(:has(.word)) { white-space: normal; font-size: var(--step-head); padding: 0 var(--margin); }
+@media (max-width: 900px), (max-width: 1000px) and (max-height: 500px) {
+  .marquee-panel { left: 0 !important; right: 0 !important; bottom: 10svh; padding: 0; background: none; }
+}

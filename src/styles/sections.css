@@ -1,0 +1,193 @@
+/* Certifications, projects, writing, work, contact and the footer: what follows the story. Every colour is a
+   token from base.css, so every look works. Space and tone steps divide things; nothing is ruled off. */
+
+.sec { padding: 0 var(--margin) var(--gap-section); }
+.sec-work { --label: 11rem; }
+.sec-certs { padding-top: var(--gap-section); }
+.sec h2 { font-family: var(--display-face); font-weight: var(--display-weight); font-size: var(--step-head); line-height: var(--display-leading); letter-spacing: var(--display-tracking); margin-bottom: clamp(36px, 4.5vw, 64px); }
+.sec h3 { font-size: var(--step-lead); font-weight: 500; line-height: 1.2; }
+.sec p { max-width: 62ch; }
+
+/* ---- Certifications: a centred row of badges, each with its name under it; no cards, and no ground behind a
+   badge. A certificate with no badge gets its issuer's initials in a ring of its token colour, the size of a
+   badge, so the row stays even. */
+.sec-certs h2 { text-align: center; }
+.certs { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(48px, 5vw, 72px) clamp(32px, 4vw, 64px); }
+.cert { width: min(100%, 15rem); display: grid; justify-items: center; align-content: start; text-align: center; }
+.cert-badge { width: 152px; height: 152px; object-fit: contain; margin-bottom: 24px; }
+.cert-ring { display: grid; place-items: center; box-sizing: border-box; border: 2px solid var(--hue); border-radius: 50%; color: var(--hue); font-family: var(--display-face); font-weight: var(--display-weight); font-size: 2.25rem; letter-spacing: var(--display-tracking); }
+.cert-name { font-size: var(--step-lead); font-weight: 500; line-height: 1.3; text-wrap: balance; max-width: 20ch; }
+.cert-meta { margin-top: 4px; font-size: var(--step-small); color: var(--muted); }
+.cert-verify { margin-top: 8px; padding: 4px 0; font-size: var(--step-small); color: var(--ink); text-decoration-color: var(--faint); text-underline-offset: 0.24em; transition: color 200ms, text-decoration-color 200ms; }
+.cert-verify:hover { color: var(--hue); text-decoration-color: currentColor; }
+
+/* ---- Work: the trace. One row per organisation, each role a bar on the time axis; the year bands are tone
+   steps, the ticks short marks, each organisation's bars a tint of its own token colour (--hue, set per
+   row), read like tokens: ink on the tint, solid when pointed at. */
+.trace { --row: 52px; --bar: 32px; display: grid; grid-template-columns: var(--label) minmax(0, 1fr); grid-template-rows: 2.25rem repeat(var(--rows), var(--row)); column-gap: 24px; margin-bottom: clamp(56px, 6vw, 96px); }
+.truler { grid-column: 1 / -1; margin-left: calc(var(--label) + 24px); position: relative; font-size: var(--step-small); line-height: 1; color: var(--muted); font-variant-numeric: tabular-nums; }
+.truler span { position: absolute; top: 2px; left: var(--x); padding-left: 8px; }
+.truler span::before { content: ""; position: absolute; left: 0; top: -2px; width: 2px; height: calc(2.25rem - 2px); background: var(--faint); }
+.truler .tnow { left: auto; right: 0; padding: 0 8px 0 0; color: var(--ink); }
+.truler .tnow::before { left: auto; right: 0; background: var(--ink); }
+.torg { grid-column: 1; align-self: center; font-size: var(--step-small); font-weight: 500; line-height: 1.2; }
+.ttrack { position: relative; grid-column: 2; }
+.ttrack i { position: absolute; top: 0; bottom: 0; left: var(--x); width: var(--w); background: linear-gradient(var(--band), var(--band)), var(--bg); } /* solid: the aura stays under the chart */
+.ttrack i:nth-of-type(even) { background: linear-gradient(var(--band-2), var(--band-2)), var(--bg); }
+.tbar, .tl { position: absolute; left: var(--x); width: var(--w); top: calc((var(--row) - var(--bar)) / 2); height: var(--bar); }
+.tbar { border-radius: 4px; background: color-mix(in srgb, var(--hue) 55%, transparent); transition: background-color 200ms; }
+.tbar.hot { background: var(--hue); }
+/* The role's name: on its bar (the default, and all there is without JavaScript), or beside or above it
+   when motion.js finds the bar too short. */
+.tl { padding: 0 8px; color: var(--ink); font-size: var(--step-small); font-weight: 500; line-height: var(--bar); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; transition: color 200ms; }
+.tl.hot { color: var(--bg); }
+.tl[data-at="right"], .tl[data-at="left"], .tl[data-at="above"] { width: auto; overflow: visible; color: var(--ink); }
+.tl[data-at="right"] { left: calc(var(--x) + var(--w)); }
+.tl[data-at="left"] { left: auto; right: calc(100% - var(--x)); }
+.tl[data-at="above"] { left: auto; right: calc(100% - var(--x) - var(--w)); top: auto; bottom: 100%; height: auto; padding: 0 0 4px; line-height: 1.2; }
+.tl[data-at="none"] { visibility: hidden; }
+
+/* ---- Work: the list and the credentials. */
+.work-body { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); column-gap: clamp(40px, 6vw, 112px); align-items: start; }
+.jobs { display: grid; row-gap: 32px; }
+.job { display: grid; grid-template-columns: var(--label) minmax(0, 1fr); column-gap: 24px; align-items: baseline; }
+.job-when { font-size: var(--step-small); color: var(--muted); font-variant-numeric: tabular-nums; }
+.job-role { font-size: var(--step-lead); line-height: 1.3; }
+.job-what { margin-top: 4px; }
+.job-role strong { font-weight: 500; transition: color 200ms; }
+.job-org::before { content: "·"; content: "·" / ""; margin: 0 0.45em; color: var(--muted); }
+.job.hot .job-role strong { color: var(--hue); }
+.job-what a { color: var(--ink); text-decoration-color: var(--hue); transition: color 200ms; }
+.job-what a:hover { color: var(--hue); }
+.creds h3 { margin-bottom: 20px; }
+.creds ul { display: grid; row-gap: 16px; }
+.creds strong { display: block; font-weight: 500; }
+.creds span { color: var(--muted); }
+
+/* Links in lists keep a quiet underline at rest, so they read as links on a touch screen too. */
+.pj-name, .posts a, .skills a, .ct-links a:not(.btn) { text-decoration-color: var(--faint); transition: color 200ms, text-decoration-color 200ms; }
+.pj-name:hover, .posts a:hover, .skills a:hover, .ct-links a:not(.btn):hover { color: var(--hue); text-decoration-color: currentColor; }
+
+/* ---- Projects: the index and the card that follows it. */
+.pj { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(40px, 6vw, 112px); align-items: start; }
+.pj-row { padding: 0 0 clamp(32px, 3.4vw, 48px); }
+.pj-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 24px; max-width: none; }
+.pj-name { font-size: var(--step-lead); font-weight: 500; }
+.pj-meta { font-size: var(--step-small); color: var(--muted); }
+.pj-text { margin-top: 8px; max-width: 52ch; }
+.pj-stage { position: sticky; top: calc(var(--bar-top) + var(--bar-h) + 24px); aspect-ratio: 1; border-radius: var(--radius-panel); background: var(--glass); border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(24px) saturate(1.6); backdrop-filter: blur(24px) saturate(1.6); }
+.pj-card { position: absolute; inset: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto auto; padding: clamp(24px, 2.6vw, 40px); opacity: 0; visibility: hidden; transition: opacity 280ms var(--ease-out), visibility 280ms; }
+.pj-card.on { opacity: 1; visibility: visible; }
+a.pj-card { text-decoration: none; }
+a.pj-card:hover .pj-repo { color: var(--hue); }
+.pj-card .art { width: 100%; height: 100%; min-height: 0; }
+.orb { display: block; color: var(--hue); }
+.pj-title { margin-top: 20px; font-family: var(--display-face); font-weight: var(--display-weight); font-size: var(--step-head); line-height: 1; letter-spacing: var(--display-tracking); text-wrap: balance; }
+.pj-repo { margin-top: 8px; font-size: var(--step-small); color: var(--muted); }
+.pj-inline { display: none; }
+.art .fa { fill: var(--hue); }
+.art .fm { fill: var(--muted); }
+.art .ff { fill: var(--faint); }
+.art .ft { fill: var(--bg-3); }
+.art .sa, .art .sm, .art .sf { fill: none; }
+.art .sa { stroke: var(--hue); }
+.art .sm { stroke: var(--muted); }
+.art .sf { stroke: var(--faint); }
+@media (min-width: 960px) and (scripting: enabled) {
+  .pj-row.on .pj-name { color: var(--hue); }
+}
+
+/* ---- Writing: the heading holds the left of the grid, the two lists the right. */
+.sec-writing { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); column-gap: clamp(40px, 6vw, 112px); align-items: start; }
+.sec-writing h2 { margin-bottom: 0; }
+.wr { display: grid; row-gap: clamp(56px, 6vw, 96px); }
+.wr h3 { margin-bottom: 16px; }
+.posts li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); column-gap: 24px; align-items: baseline; padding: 8px 0; }
+.posts a { grid-column: 2; grid-row: 1; font-size: var(--step-lead); line-height: 1.3; }
+.posts .date { grid-column: 1; grid-row: 1; font-size: var(--step-small); color: var(--muted); font-variant-numeric: tabular-nums; }
+.skills li { display: grid; grid-template-columns: minmax(0, 17.5rem) minmax(0, 1fr); column-gap: 24px; align-items: baseline; padding: 8px 0; }
+.skills a { font-weight: 500; overflow-wrap: anywhere; }
+
+/* ---- Contact: the composer, read back as tokens, and the ways to reach me. */
+/* The last section sits on its own field, one tone up: the page's one change of ground. */
+.sec-contact { background: var(--band); padding-top: calc(var(--gap-section) * 0.6); padding-bottom: calc(var(--gap-section) * 0.6); transition: background-color 400ms; }
+.sec-contact h2 { margin-bottom: 28px; }
+.sec .ct-lead { font-size: var(--step-lead); line-height: 1.4; max-width: 44ch; margin-bottom: clamp(36px, 4vw, 56px); }
+.ct { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); column-gap: clamp(40px, 6vw, 112px); align-items: start; }
+.composer { display: grid; gap: 12px; }
+.composer label { font-weight: 500; }
+.composer textarea { font: inherit; color: var(--ink); background: var(--bg); border: 0; border-radius: var(--radius-panel); padding: 16px 20px; min-height: 8.5em; resize: vertical; transition: background-color 400ms; }
+.composer textarea::placeholder { color: var(--muted); opacity: 1; }
+.composer textarea:focus-visible { outline: 2px solid var(--c4); outline-offset: 2px; }
+.reader { display: grid; gap: 12px; margin-top: 8px; }
+.reader .tokview { max-width: none; min-height: calc(1.75em * 3 + 32px); padding: 16px 20px; border-radius: var(--radius-panel); background: var(--bg); transition: background-color 400ms; }
+/* An empty field: the counts read 0 and the view shows the placeholder's tokens, faded like the placeholder
+   (0.8 keeps every token at AA contrast in both themes). */
+.reader.sample .tk { opacity: 0.8; }
+.reader-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+.rate { font-size: var(--step-small); color: var(--muted); }
+.composer .btn { justify-self: start; margin-top: 16px; }
+.ct-sent { font-size: var(--step-small); color: var(--muted); }
+.ct-sent button { display: inline-block; padding: 8px 0; margin: -8px 0; border: 0; background: none; color: var(--ink); font-weight: 500; text-decoration: underline; text-decoration-color: var(--hue); text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; cursor: pointer; }
+.ct-links { display: grid; justify-items: start; gap: 8px; line-height: 1.3; padding-top: 2.1em; }
+.ct-links a { overflow-wrap: anywhere; }
+.ct-links .btn { margin-bottom: 16px; }
+/* The band is a tone up; every token colour keeps AA on it in both themes. */
+.sec-contact a:not(.btn):hover, .ct-sent button:hover { color: var(--hue); }
+
+/* ---- The footer: the name across the width, and one line. */
+/* The grove grows right up to the contact band; its faded top rows are the only rest before the footer. */
+.foot { padding: clamp(16px, 2vw, 28px) var(--margin) clamp(28px, 3vw, 44px); }
+.foot-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 24px; margin-top: 28px; font-size: var(--step-small); color: var(--muted); }
+.foot-line span { margin-right: auto; }
+.foot-line a { color: var(--ink); text-decoration-color: transparent; }
+.foot-line a:hover { text-decoration-color: var(--hue); }
+
+/* Below 1100px the trace takes the full width and each organisation's name its own line above its row,
+   which leaves room above a short bar for its name. */
+@media (max-width: 1099px) {
+  .trace { --row: 32px; --bar: 24px; grid-template-columns: minmax(0, 1fr); grid-template-rows: 2.25rem repeat(var(--rows), auto var(--row)); }
+  .truler { margin-left: 0; }
+  .torg { padding: 12px 0 4px; }
+  .ttrack { grid-column: 1; }
+}
+@media (max-width: 959px) {
+  .work-body, .ct, .sec-writing { grid-template-columns: minmax(0, 1fr); }
+  .creds { margin-top: 64px; }
+  .sec-writing h2 { margin-bottom: clamp(36px, 4.5vw, 64px); }
+  .ct-links { padding-top: 0; margin-top: 64px; }
+}
+/* Narrow screens, and any screen without JavaScript (no card can follow the list): each project shows its
+   own drawing. */
+@media (max-width: 959px), (scripting: none) {
+  .pj { grid-template-columns: minmax(0, 1fr); }
+  .pj-stage { display: none; }
+  .pj-inline { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; margin-top: 16px; padding: 16px; border-radius: var(--radius-panel); background: var(--glass); border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(24px) saturate(1.6); backdrop-filter: blur(24px) saturate(1.6); }
+}
+@media (min-width: 600px) and (max-width: 959px), (min-width: 600px) and (scripting: none) {
+  .pj-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); grid-template-rows: auto 1fr; column-gap: 32px; align-items: start; }
+  .pj-row .pj-inline { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
+}
+/* Without JavaScript the reader cannot read anything, so only the form is left. */
+@media (scripting: none) {
+  .reader { display: none; }
+}
+@media (max-width: 720px) {
+  .job { grid-template-columns: minmax(0, 1fr); row-gap: 2px; }
+  .posts li, .skills li { grid-template-columns: minmax(0, 1fr); row-gap: 0; padding: 0 0 8px; }
+  .posts a, .posts .date { grid-column: 1; grid-row: auto; }
+  /* Touch: every link in a list is a row about 44px tall. */
+  .posts a, .skills a, .ct-links a:not(.btn) { display: block; padding: 12px 0; }
+  .pj-name { display: inline-block; padding: 8px 0; }
+  .ct-links { gap: 0; }
+  .foot-line a { padding: 12px 0; }
+}
+
+/* Beta (src/beta.js): every section is a block in its own colours, full width, with the template's paper
+   grain over its ground and under its words. The contact band and the footer share one plain block. Bars on
+   the trace go lighter in a palette block, so the ink labels on them still read. */
+[data-look="beta"] .sec, [data-look="beta"] .foot { position: relative; isolation: isolate; background-color: var(--bg); }
+[data-look="beta"] .sec { padding-top: var(--gap-section); }
+[data-look="beta"] .sec::before, [data-look="beta"] .foot::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: var(--grain); mix-blend-mode: overlay; opacity: 0.6; pointer-events: none; }
+[data-look="beta"] [data-pal]:not([data-pal="base"]) .tbar { background: color-mix(in srgb, var(--hue) 22%, transparent); }
+[data-look="beta"] [data-pal]:not([data-pal="base"]) .tbar.hot { background: var(--hue); }

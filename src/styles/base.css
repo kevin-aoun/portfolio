@@ -1,0 +1,220 @@
+/* Tokens, reset, the glass bar and the pieces every part of the page shares.
+   Dark is the default: a warm black field. Colour comes from the tokenizer's five token colours, --c0 to --c4
+   (purple, green, amber, red, blue): OpenAI's own on the dark page, deepened in OKLCH on paper, so each one
+   passes AA as text on the page and on its cards in both themes. Things that come in lists take them in order
+   through --hue, the way a tokenizer colours consecutive tokens. --tk0 to --tk4 are the tokens' tints. */
+:root, [data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0c0c0b;
+  --bg-2: #151513;
+  --bg-3: #1f1e1b;
+  --ink: #ecebe5;
+  --grid-ink: 236 235 229; /* the drafting grid (src/grid.js), brushed: its lines' ink and opacities */
+  --grid-a: 0.06;
+  --grid-a-major: 0.12;
+  --band: rgba(236, 235, 229, 0.04); /* a band of the page set off from the rest, the grid still under it */
+  --band-2: rgba(236, 235, 229, 0.085);
+  --muted: #a3a097;
+  --faint: #5f5c54;
+  --c0: #8965fe;
+  --c1: #51e26d;
+  --c2: #faaa07;
+  --c3: #fb2438;
+  --c4: #04b6ee;
+  --glass: rgba(18, 18, 16, 0.52);
+  --glass-edge: rgba(236, 235, 229, 0.1);
+  --glass-strong: rgba(14, 14, 12, 0.78);
+  --card: rgba(19, 19, 17, 0.94);
+  --unread: #6f6c63;
+}
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f1efea;
+  --bg-2: #e7e4dd;
+  --bg-3: #dcd8cf;
+  --ink: #191814;
+  --grid-ink: 25 24 20;
+  --grid-a: 0.085;
+  --grid-a-major: 0.15;
+  --band: rgba(25, 24, 20, 0.045);
+  --band-2: rgba(25, 24, 20, 0.095);
+  --muted: #57534a;
+  --faint: #a8a397;
+  --c0: #7021f3;
+  --c1: #00750b;
+  --c2: #965400;
+  --c3: #c90b26;
+  --c4: #006a9c;
+  --glass: rgba(241, 239, 234, 0.58);
+  --glass-edge: rgba(25, 24, 20, 0.1);
+  --glass-strong: rgba(241, 239, 234, 0.86);
+  --card: rgba(232, 229, 222, 0.95);
+  --unread: #8a857a;
+}
+:root {
+  --hue: var(--c4);
+  --text-face: 'Albert Sans Variable', 'Albert Sans', system-ui, sans-serif;
+  --display-face: 'Albert Sans Variable', 'Albert Sans', system-ui, sans-serif;
+  --mono-face: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  --display-weight: 600;
+  --display-tracking: -0.035em;
+  --display-leading: 1;
+  /* Five sizes for the whole page. */
+  --step-small: 1rem;
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --step-lead: clamp(1.1875rem, 1.05rem + 0.6vw, 1.5rem);
+  --step-head: clamp(2.25rem, 1.3rem + 2.6vw, 3.75rem);
+  --name-em: 9.3;
+  --margin: clamp(16px, 3.2vw, 56px);
+  --gap-section: clamp(120px, 14vw, 220px);
+  --bar-top: 16px;
+  --bar-h: 48px;
+  --radius: 999px;
+  --radius-panel: 14px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 88px; background-color: var(--bg); transition: background-color 400ms; }
+/* Behind everything: the aura's light (src/aura.js, a small canvas scaled up), the drafting grid over it
+   (src/grid.js), a fine grain over both (never over the content); the 3D stage draws all three on its own
+   ground. */
+.aurafx { position: fixed; left: 0; top: 0; z-index: -2; pointer-events: none; }
+.gridfx, .grainfx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+.grainfx { mix-blend-mode: overlay; }
+body { margin: 0; color: var(--ink); font-family: var(--text-face); font-size: var(--step-body); line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: clip; transition: color 400ms; }
+img, svg, canvas { display: block; max-width: 100%; }
+a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; }
+h1, h2, h3, p, ol, ul, figure { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--c4); outline-offset: 3px; border-radius: 4px; }
+::selection { background: var(--tk0); color: var(--ink); } /* a selection reads as a token */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: var(--margin); top: -100px; z-index: 60; background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: var(--radius); text-decoration: none; font-weight: 500; }
+.skip:focus { top: 12px; }
+
+/* The bar: a small pane of glass floating over the stage. */
+.bar { position: fixed; z-index: 40; top: var(--bar-top); left: 50%; transform: translateX(-50%); height: var(--bar-h); display: flex; align-items: center; gap: 2px; padding: 0 4px 0 16px; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); font-size: var(--step-small); white-space: nowrap; transition: background-color 400ms, border-color 400ms; }
+/* The mark (Kevin's tree, in ink) leads the name: 20px tall in the 48px bar, so it sits 14px from top and bottom
+   and 16px from the bar's rounded end; 12px to the name. The viewBox is the mark's own bounds, so it centres
+   on its ink, not on the margin the drawing had. The link stays 44px tall to tap. */
+.wordmark { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; font-weight: 500; text-decoration: none; margin-right: 16px; }
+.wordmark .mark { flex: none; width: 16px; height: 20px; fill: currentColor; }
+.bar nav { display: flex; }
+.bar nav a { padding: 8px 12px; color: var(--muted); text-decoration: none; border-radius: var(--radius); transition: color 200ms; }
+.bar nav a:hover, .bar nav a[aria-current="true"] { color: var(--ink); }
+.theme { flex: none; display: grid; place-items: center; width: 40px; height: 40px; margin-left: 4px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; transition: color 200ms, background-color 200ms; }
+.theme:hover { color: var(--ink); background: var(--glass-edge); }
+.beta { flex: none; height: 32px; margin-left: 4px; padding: 0 12px; border: 1px solid var(--glass-edge); border-radius: 999px; background: transparent; color: var(--muted); font-size: var(--step-small); font-weight: 500; cursor: pointer; transition: color 200ms, background-color 200ms, border-color 200ms; }
+.beta:hover { color: var(--ink); border-color: color-mix(in oklab, var(--ink) 30%, transparent); }
+.beta[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+[data-look="beta"] .aurafx, [data-look="beta"] .grainfx { display: none; } /* flat fields: no light; each block carries its own grain */
+.theme svg { width: 18px; height: 18px; }
+.theme .moon { display: none; }
+[data-theme="light"] .theme .sun { display: none; }
+[data-theme="light"] .theme .moon { display: block; }
+
+/* Buttons wear the bar's glass (same tint, edge and blur); their colour only tints the edge on hover. */
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 24px; background: var(--glass); color: var(--ink); text-decoration: none; font-weight: 500; border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); cursor: pointer; border-radius: var(--radius); transition: transform 160ms var(--ease-out), background-color 200ms, border-color 200ms; white-space: nowrap; }
+.btn:hover { background: var(--glass-strong); border-color: color-mix(in oklab, var(--hue) 55%, var(--glass-edge)); }
+.btn:active { transform: translateY(1px) scale(0.98); }
+.textlink { color: var(--ink); text-decoration-color: var(--hue); }
+.textlink:hover { color: var(--hue); }
+/* A list's items take the five colours in order, round again after the fifth. */
+.hues > :nth-child(5n+1) { --hue: var(--c0); }
+.hues > :nth-child(5n+2) { --hue: var(--c1); }
+.hues > :nth-child(5n+3) { --hue: var(--c2); }
+.hues > :nth-child(5n+4) { --hue: var(--c3); }
+.hues > :nth-child(5n+5) { --hue: var(--c4); }
+
+/* Beta (src/beta.js): blocks in Kevin's two-colour templates. In a palette block everything is its ground
+   (--pb) or its ink (--pi), or a tint of the ink: no third colour. Each palette has a side for each theme:
+   a dark ground with a light ink on the dark theme, the inverse on paper (the pairs are PALETTES in beta.js).
+   Muted text is as light as each side allows and still reads (--pm: AA on its ground and on its cards).
+   The five token colours become the ink, and the token tints five steps of it. Plain blocks are the theme. */
+[data-look="beta"] [data-pal="wine"] { --pb: #6e0a30; --pi: #ffa0c9; --pm: 87%; }
+[data-look="beta"] [data-pal="rust"] { --pb: #8a2b12; --pi: #ffc856; --pm: 95%; }
+[data-look="beta"] [data-pal="azure"] { --pb: #0b1d4f; --pi: #a9d4ff; --pm: 68%; }
+[data-look="beta"] [data-pal="forest"] { --pb: #173324; --pi: #bfe099; --pm: 71%; }
+[data-look="beta"] [data-pal="aubergine"] { --pb: #200937; --pi: #f090d1; --pm: 76%; }
+[data-look="beta"] [data-pal="ice"] { --pb: #044169; --pi: #dde9f5; --pm: 74%; }
+[data-look="beta"] [data-pal="teal"] { --pb: #003d3a; --pi: #8eecd0; --pm: 74%; }
+[data-look="beta"] [data-pal="indigo"] { --pb: #221c72; --pi: #c8c0ff; --pm: 75%; }
+[data-look="beta"][data-theme="light"] [data-pal="wine"] { --pb: #ffa0c9; --pi: #6e0a30; --pm: 88%; }
+[data-look="beta"][data-theme="light"] [data-pal="rust"] { --pb: #ebb53d; --pi: #842300; --pm: 100%; }
+[data-look="beta"][data-theme="light"] [data-pal="azure"] { --pb: #a9d4ff; --pi: #0b1d4f; --pm: 70%; }
+[data-look="beta"][data-theme="light"] [data-pal="forest"] { --pb: #afcd87; --pi: #041b06; --pm: 68%; }
+[data-look="beta"][data-theme="light"] [data-pal="aubergine"] { --pb: #fbc4d9; --pi: #2e0056; --pm: 68%; }
+[data-look="beta"][data-theme="light"] [data-pal="ice"] { --pb: #dde9f5; --pi: #044169; --pm: 78%; }
+[data-look="beta"][data-theme="light"] [data-pal="teal"] { --pb: #8eecd0; --pi: #003d3a; --pm: 77%; }
+[data-look="beta"][data-theme="light"] [data-pal="indigo"] { --pb: #c8c0ff; --pi: #221c72; --pm: 77%; }
+[data-look="beta"] [data-pal]:not([data-pal="base"]) {
+  --bg: var(--pb); --ink: var(--pi);
+  --bg-2: color-mix(in oklab, var(--pi) 7%, var(--pb)); --bg-3: color-mix(in oklab, var(--pi) 13%, var(--pb));
+  --muted: color-mix(in oklab, var(--pi) var(--pm), var(--pb)); --faint: color-mix(in oklab, var(--pi) 38%, var(--pb));
+  --unread: color-mix(in oklab, var(--pi) 45%, var(--pb));
+  --band: color-mix(in oklab, var(--pi) 6%, transparent); --band-2: color-mix(in oklab, var(--pi) 12%, transparent);
+  --c0: var(--pi); --c1: var(--pi); --c2: var(--pi); --c3: var(--pi); --c4: var(--pi); --hue: var(--pi); /* --hue resolves where it is set, so it is set again here */
+  --tk0: color-mix(in oklab, var(--pi) 30%, var(--pb)); --tk1: color-mix(in oklab, var(--pi) 24%, var(--pb)); --tk2: color-mix(in oklab, var(--pi) 18%, var(--pb));
+  --tk3: color-mix(in oklab, var(--pi) 12%, var(--pb)); --tk4: color-mix(in oklab, var(--pi) 7%, var(--pb));
+  --glass: color-mix(in oklab, var(--pb) 62%, transparent); --glass-edge: color-mix(in oklab, var(--pi) 18%, transparent);
+  --glass-strong: color-mix(in oklab, var(--pb) 86%, transparent); --card: color-mix(in oklab, var(--pi) 5%, var(--pb));
+  color: var(--ink);
+}
+
+/* The tokenizer view: OpenAI's five token colours, exactly, on either theme. */
+.tokview { font-family: var(--mono-face); font-size: var(--tk-size, var(--step-small)); line-height: 1.75; color: var(--ink); overflow-wrap: anywhere; }
+.tk { white-space: pre-wrap; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+:root { --tk0: rgba(107, 64, 216, 0.4); --tk1: rgba(104, 222, 122, 0.5); --tk2: rgba(244, 172, 54, 0.5); --tk3: rgba(239, 65, 70, 0.5); --tk4: rgba(39, 181, 234, 0.5); }
+.tk0 { background: var(--tk0); }
+.tk1 { background: var(--tk1); }
+.tk2 { background: var(--tk2); }
+.tk3 { background: var(--tk3); }
+.tk4 { background: var(--tk4); }
+/* Token IDs: each ID on its token's colour, a small gap between them. Only real tokens carry an ID; the
+   system prompt's "2,048 tokens" chip stays as it is. */
+.show-ids .tk[data-id] { font-size: 0; }
+.show-ids .tk[data-id]::after { content: attr(data-id); font-size: var(--tk-size, var(--step-small)); padding: 0 0.3em; margin-right: 0.3rem; background: inherit; box-shadow: inherit; }
+/* Where the IDs come from, said only while they are shown. */
+.idnote { display: none; font-size: var(--step-small); color: var(--muted); }
+.show-ids .idnote, .show-ids + .idnote { display: block; }
+.tokswitch { display: inline-flex; gap: 2px; padding: 4px; border-radius: 12px; background: var(--glass); border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); font-size: var(--step-small); }
+.tokswitch button { border: 0; background: transparent; color: var(--muted); padding: 4px 12px; border-radius: 8px; cursor: pointer; transition: color 200ms, background-color 200ms; min-height: 36px; }
+.tokswitch button[aria-pressed="true"] { background: var(--glass-edge); color: var(--ink); }
+.tokswitch button:hover { color: var(--ink); }
+.counts { display: flex; gap: 32px; font-variant-numeric: tabular-nums; }
+.counts dt { font-weight: 500; font-size: var(--step-small); }
+.counts dd { margin: 0; font-size: var(--step-lead); line-height: 1.2; }
+
+@media (max-width: 720px) {
+  .bar { padding: 0 4px 0 14px; max-width: calc(100vw - 16px); }
+  .wordmark { margin-right: 4px; padding-right: 4px; }
+  .wordmark .full { display: none; } /* the mark alone stands for the name */
+  .bar nav a { padding: 8px 8px; }
+}
+/* Phones: the links, Beta and the theme button share the bar, so each gives a little. */
+@media (max-width: 480px) {
+  .bar nav { font-size: 0.8125rem; }
+  .bar nav a { padding: 8px 6px; }
+  .beta { height: 30px; margin-left: 2px; padding: 0 10px; font-size: 0.8125rem; }
+  .theme { width: 36px; height: 36px; margin-left: 0; }
+}
+@media (max-width: 380px) {
+  .bar nav a { padding: 8px 4px; }
+}
+@media (max-width: 370px) {
+  .bar { padding-left: 8px; }
+  .wordmark { display: none; }
+}
+/* The narrowest phones: Beta shows only while it is on (so it can be turned off again). */
+@media (max-width: 340px) {
+  html:not([data-look="beta"]) .beta { display: none; }
+}
+
+
+/* Reduced motion: no transitions or keyframes at all. (A tiny duration instead would still turn every
+   inherited change, visibility included, into a transition.) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

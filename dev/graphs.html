@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" data-theme="dark" class="js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Charts bench</title>
+  <link rel="icon" href="data:,">
+  <style>
+    /* Bench only: each chart in a full-screen frame like the story's stage, controls on the free side. */
+    .bench { position: relative; height: 100svh; overflow: hidden; background: var(--bg); }
+    .bench + .bench { border-top: 1px solid var(--glass-edge); }
+    .ctl { position: absolute; bottom: 24px; width: min(24rem, 38vw); display: grid; gap: 8px; font: 14px/1.4 var(--mono-face); color: var(--muted); }
+    .bench[data-side="left"] .ctl { right: 32px; }
+    .bench[data-side="right"] .ctl { left: 32px; }
+    .ctl input { width: 100%; accent-color: var(--c4); }
+    .ctl pre { margin: 0; white-space: pre-wrap; }
+    .themebtn { position: fixed; top: 14px; right: 14px; z-index: 50; }
+    .shot .ctl, .shot .themebtn { display: none; }
+    @media (max-width: 720px) { .ctl { top: 16px; bottom: auto; left: 16px !important; right: 16px !important; width: auto; } .ctl pre { display: none; } }
+  </style>
+  <script type="module" src="./graphs.js"></script>
+</head>
+<body></body>
+</html>

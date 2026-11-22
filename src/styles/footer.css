@@ -1,0 +1,18 @@
+/* The footer's grove: whole marks only, faint and upright, fading up from the links; one signature
+   mark in Kevin's token colour (red: "Kevin" is the red token in "Hey, I'm Kevin"). --pitch is the cell, --mark the tree's height (pitch at least 1.6x the mark). */
+.grove { --pitch: 56px; --mark: 28px; --rows: 5; position: relative; width: 100%; }
+.tf-defs { position: absolute; overflow: hidden; }
+.grove-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--pitch), 1fr)); grid-auto-rows: var(--pitch); height: calc(var(--rows) * var(--pitch)); overflow: hidden; -webkit-mask-image: linear-gradient(to top, #000 20%, rgba(0, 0, 0, 0.45)); mask-image: linear-gradient(to top, #000 20%, rgba(0, 0, 0, 0.45)); touch-action: manipulation; }
+.tc { display: grid; place-items: center; color: var(--ink); opacity: 0.14; transform-origin: 54.5% 82%; /* the trunk's foot */
+  transform: rotate(calc(var(--lean, 0) * 1deg)) scale(calc(var(--in, 1) * var(--grow, 1))); }
+.tc svg { width: calc(var(--mark) * 0.87); height: var(--mark); fill: currentColor; overflow: visible; }
+.tc.acc { color: var(--c3); opacity: 1; }
+/* The grove's secret (field.js): a pinned tree holds its colour and glow; five in order turn the whole grove
+   gold, rippling out from the last (--d), the other trees fainter than the five so the grid isn't heavy.
+   Gold: bright and warm on the dark page, deeper on paper, both clear of the amber token. */
+:root, [data-theme="dark"] { --gold: #fdca3a; }
+[data-theme="light"] { --gold: #a57700; }
+.tc.pin { color: var(--pin); opacity: 1; filter: drop-shadow(0 0 8px color-mix(in srgb, currentColor 60%, transparent)); cursor: pointer; transition: color 700ms ease, opacity 300ms ease, filter 700ms ease; }
+.won .tc { color: var(--gold); transition: color 300ms ease, opacity 300ms ease, filter 300ms ease; transition-delay: calc(var(--d, 0) * 1ms); }
+.won .tc:not(.pin) { opacity: 0.6; filter: drop-shadow(0 0 4px color-mix(in srgb, currentColor 35%, transparent)); }
+@media (max-width: 640px) { .grove { --pitch: 40px; --mark: 20px; --rows: 4; } }

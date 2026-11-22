@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kevin Aoun, AI engineer</title>
+  <meta name="description" content="Kevin Aoun builds AI agents and voice AI, and sizes the GPUs they run on. A scroll story from one transistor to a robot.">
+  <meta name="theme-color" content="#0c0c0b">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://kevinaoun.dev/">
+  <!-- Link previews (LinkedIn, X, Slack): og.jpg is the hello beat, rendered at 1200 × 630. -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kevinaoun.dev/">
+  <meta property="og:title" content="Kevin Aoun, AI engineer">
+  <meta property="og:description" content="Kevin Aoun builds AI agents and voice AI, and sizes the GPUs they run on. A scroll story from one transistor to a robot.">
+  <meta property="og:image" content="https://kevinaoun.dev/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <script>
+    // Dark unless the visitor chose light here before; set before first paint so nothing flashes.
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('theme'); } catch (e) {}
+      var q = new URLSearchParams(location.search).get('theme');
+      if (q === 'light' || q === 'dark') t = q;
+      document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+      // Beta colours, if chosen before (or ?look=beta): set now too, so the page never flashes the default.
+      var b = null;
+      try { b = localStorage.getItem('look'); } catch (e) {}
+      var l = new URLSearchParams(location.search).get('look');
+      if (l === 'beta' || l === 'default') b = l;
+      if (b === 'beta') document.documentElement.dataset.look = 'beta';
+    })();
+  </script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <a class="skip" href="#certifications">Skip the story</a>
+  <!--slot:header-->
+  <main>
+    <!--slot:story-->
+    <!--slot:certificationsSection-->
+    <!--slot:projectsSection-->
+    <!--slot:writingSection-->
+    <!--slot:workSection-->
+    <!--slot:contactSection-->
+  </main>
+  <!--slot:footer-->
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sections bench</title>
+  <meta name="theme-color" content="#0c0c0b">
+  <link rel="icon" href="data:,">
+  <script>
+    // Same as the site: dark unless chosen otherwise; ?theme=light|dark for screenshots.
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('theme'); } catch (e) {}
+      var q = new URLSearchParams(location.search).get('theme');
+      if (q === 'light' || q === 'dark') t = q;
+      document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+    })();
+  </script>
+  <style>
+    /* A stand-in for the end of the story, so the sections are seen after what precedes them. */
+    .bench-top { display: grid; gap: 32px; padding: 140px var(--margin) 9svh; }
+    .bench-top h1 { font-family: var(--display-face); font-weight: var(--display-weight); font-size: min(14rem, calc((100vw - 2 * var(--margin)) / var(--name-em))); line-height: 0.92; letter-spacing: var(--display-tracking); white-space: nowrap; }
+    .bench-top p { max-width: 40ch; font-size: var(--step-lead); line-height: 1.4; }
+    .bench-top .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; font-size: var(--step-body); }
+  </style>
+  <script type="module" src="./sections.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <a class="wordmark" href="#top"><span class="full">Kevin Aoun</span><span class="short" aria-hidden="true">KA</span></a>
+    <nav aria-label="Sections"><a href="#work">Work</a><a href="#projects">Projects</a><a href="#writing">Writing</a><a href="#contact">Contact</a></nav>
+    <button class="theme" type="button" aria-label="Switch to light theme">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 14.6A8.4 8.4 0 0 1 9.4 3.8a8.4 8.4 0 1 0 10.8 10.8Z"/></svg>
+    </button>
+  </header>
+  <main id="top">
+    <section class="bench-top">
+      <h1>Hey, I’m Kevin</h1>
+      <p>AI engineer at Gaya and advisor at inmind.ai. I build browser agents and voice AI, and size the GPUs they run on.</p>
+      <p class="acts"><a class="btn" href="https://cal.com/kevin-1">Book a call</a><a class="textlink" href="mailto:kevin.w.aoun@gmail.com">kevin.w.aoun@gmail.com</a></p>
+    </section>
+  </main>
+</body>
+</html>

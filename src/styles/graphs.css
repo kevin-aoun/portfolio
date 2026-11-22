@@ -1,0 +1,35 @@
+/* The memory chart: a thin-line drawing on a quiet card, so the 3D line art never runs through it. Colours
+   are the theme's tokens only, so every look works. */
+@media (min-width: 901px) and (min-height: 501px), (min-width: 1001px) {
+  .graph-panel { width: min(38rem, 44vw); }
+  .graph-panel .ptext { max-width: none; text-wrap: pretty; }
+}
+.chart { margin-top: 20px; padding: 16px 20px 12px; border-radius: var(--radius-panel); background: var(--glass-strong); border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.chart svg { width: 100%; height: clamp(210px, 32svh, 300px); overflow: visible; font-variant-numeric: tabular-nums; }
+.chart figcaption { margin-top: 8px; font-size: var(--step-small); line-height: 1.4; color: var(--muted); text-wrap: pretty; }
+
+.chart text { fill: var(--ink); font-family: var(--text-face); font-size: 16px; }
+.chart .g-cap { fill: var(--muted); }
+.chart .g-num { font-size: 44px; font-weight: 600; letter-spacing: -0.02em; }
+.chart .g-box { fill: none; stroke: var(--muted); stroke-width: 1; }
+.chart .g-wt { fill: var(--faint); stroke: var(--muted); stroke-width: 1; }
+
+/* Phones and tablets: the panel is already a card at the bottom of the screen, so the chart drops its own. */
+@media (max-width: 900px), (max-width: 1000px) and (max-height: 500px) {
+  .graph-panel .chart { margin-top: 12px; padding: 0; background: none; border: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .chart svg { height: clamp(160px, 25svh, 300px); }
+}
+/* Phones in landscape: the card is wide and short, so the chart sits beside the words, sized to fit under
+   the bar. */
+@media (max-width: 1000px) and (max-height: 500px) {
+  .graph-panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-template-rows: auto 1fr; column-gap: 24px; align-content: start; }
+  .graph-panel .chart { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
+  .chart svg { height: 45svh; }
+}
+
+/* Kevin's 80 GB: the skills' tiles and the key under them share the tokens' tints, in token order. */
+.chart .tk0 { fill: var(--tk0); } .chart .tk1 { fill: var(--tk1); } .chart .tk2 { fill: var(--tk2); } .chart .tk3 { fill: var(--tk3); } .chart .tk4 { fill: var(--tk4); }
+.g-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.g-legend li { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.g-legend i { flex: none; width: 12px; height: 12px; border-radius: 2px; }
+.g-legend .g-res { border: 1px solid var(--muted); }
