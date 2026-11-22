@@ -27,7 +27,7 @@ export function initBrush() {
     if (!last) { last = [x, y, t]; return; }
     const [x0, y0, t0] = last, dx = x - x0, dy = y - y0, len = Math.hypot(dx, dy);
     if (len < 1) return;
-    const fast = Math.min(1, len / Math.max(8, t - t0) / 2.5), R = 30 - 16 * fast, load = 1 - 0.3 * fast;
+    const fast = Math.min(1, len / Math.max(8, t - t0) / 2.5), R = 150 - 80 * fast, load = 1 - 0.3 * fast;
     const d = Math.round((((Math.atan2(dy, dx) % Math.PI) + Math.PI) % Math.PI) / (Math.PI / 4)) % 4;
     const steps = Math.ceil(len / (R * 0.3));
     for (let k = 1; k <= steps; k++) {
