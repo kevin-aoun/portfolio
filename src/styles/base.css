@@ -76,12 +76,9 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 88px; background-color: var(--bg); transition: background-color 400ms; }
-/* Behind everything: the aura's light (src/aura.js, a small canvas scaled up), the drafting grid over it
-   (src/grid.js), a fine grain over both (never over the content); the 3D stage draws all three on its own
-   ground. */
-.aurafx { position: fixed; left: 0; top: 0; z-index: -2; pointer-events: none; }
-.gridfx, .grainfx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-.grainfx { mix-blend-mode: overlay; }
+/* Behind everything: the drafting grid (src/grid.js); the 3D stage draws it on its own ground too. Each block's
+   paper grain is its own (sections.css). */
+.gridfx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 body { margin: 0; color: var(--ink); font-family: var(--text-face); font-size: var(--step-body); line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: clip; transition: color 400ms; }
 img, svg, canvas { display: block; max-width: 100%; }
 a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; }
@@ -106,10 +103,6 @@ button { font: inherit; color: inherit; }
 .bar nav a:hover, .bar nav a[aria-current="true"] { color: var(--ink); }
 .theme { flex: none; display: grid; place-items: center; width: 40px; height: 40px; margin-left: 4px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; transition: color 200ms, background-color 200ms; }
 .theme:hover { color: var(--ink); background: var(--glass-edge); }
-.beta { flex: none; height: 32px; margin-left: 4px; padding: 0 12px; border: 1px solid var(--glass-edge); border-radius: 999px; background: transparent; color: var(--muted); font-size: var(--step-small); font-weight: 500; cursor: pointer; transition: color 200ms, background-color 200ms, border-color 200ms; }
-.beta:hover { color: var(--ink); border-color: color-mix(in oklab, var(--ink) 30%, transparent); }
-.beta[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-[data-look="beta"] .aurafx, [data-look="beta"] .grainfx { display: none; } /* flat fields: no light; each block carries its own grain */
 .theme svg { width: 18px; height: 18px; }
 .theme .moon { display: none; }
 [data-theme="light"] .theme .sun { display: none; }
@@ -128,28 +121,28 @@ button { font: inherit; color: inherit; }
 .hues > :nth-child(5n+4) { --hue: var(--c3); }
 .hues > :nth-child(5n+5) { --hue: var(--c4); }
 
-/* Beta (src/beta.js): blocks in Kevin's two-colour templates. In a palette block everything is its ground
+/* The palettes (src/palettes.js): blocks in Kevin's two-colour templates. In a palette block everything is its ground
    (--pb) or its ink (--pi), or a tint of the ink: no third colour. Each palette has a side for each theme:
-   a dark ground with a light ink on the dark theme, the inverse on paper (the pairs are PALETTES in beta.js).
+   a dark ground with a light ink on the dark theme, the inverse on paper (the pairs are PALETTES in palettes.js).
    Muted text is as light as each side allows and still reads (--pm: AA on its ground and on its cards).
    The five token colours become the ink, and the token tints five steps of it. Plain blocks are the theme. */
-[data-look="beta"] [data-pal="wine"] { --pb: #6e0a30; --pi: #ffa0c9; --pm: 87%; }
-[data-look="beta"] [data-pal="rust"] { --pb: #8a2b12; --pi: #ffc856; --pm: 95%; }
-[data-look="beta"] [data-pal="azure"] { --pb: #0b1d4f; --pi: #a9d4ff; --pm: 68%; }
-[data-look="beta"] [data-pal="forest"] { --pb: #173324; --pi: #bfe099; --pm: 71%; }
-[data-look="beta"] [data-pal="aubergine"] { --pb: #200937; --pi: #f090d1; --pm: 76%; }
-[data-look="beta"] [data-pal="ice"] { --pb: #044169; --pi: #dde9f5; --pm: 74%; }
-[data-look="beta"] [data-pal="teal"] { --pb: #003d3a; --pi: #8eecd0; --pm: 74%; }
-[data-look="beta"] [data-pal="indigo"] { --pb: #221c72; --pi: #c8c0ff; --pm: 75%; }
-[data-look="beta"][data-theme="light"] [data-pal="wine"] { --pb: #ffa0c9; --pi: #6e0a30; --pm: 88%; }
-[data-look="beta"][data-theme="light"] [data-pal="rust"] { --pb: #ebb53d; --pi: #842300; --pm: 100%; }
-[data-look="beta"][data-theme="light"] [data-pal="azure"] { --pb: #a9d4ff; --pi: #0b1d4f; --pm: 70%; }
-[data-look="beta"][data-theme="light"] [data-pal="forest"] { --pb: #afcd87; --pi: #041b06; --pm: 68%; }
-[data-look="beta"][data-theme="light"] [data-pal="aubergine"] { --pb: #fbc4d9; --pi: #2e0056; --pm: 68%; }
-[data-look="beta"][data-theme="light"] [data-pal="ice"] { --pb: #dde9f5; --pi: #044169; --pm: 78%; }
-[data-look="beta"][data-theme="light"] [data-pal="teal"] { --pb: #8eecd0; --pi: #003d3a; --pm: 77%; }
-[data-look="beta"][data-theme="light"] [data-pal="indigo"] { --pb: #c8c0ff; --pi: #221c72; --pm: 77%; }
-[data-look="beta"] [data-pal]:not([data-pal="base"]) {
+[data-pal="wine"] { --pb: #6e0a30; --pi: #ffa0c9; --pm: 87%; }
+[data-pal="rust"] { --pb: #8a2b12; --pi: #ffc856; --pm: 95%; }
+[data-pal="azure"] { --pb: #0b1d4f; --pi: #a9d4ff; --pm: 68%; }
+[data-pal="forest"] { --pb: #173324; --pi: #bfe099; --pm: 71%; }
+[data-pal="aubergine"] { --pb: #200937; --pi: #f090d1; --pm: 76%; }
+[data-pal="ice"] { --pb: #044169; --pi: #dde9f5; --pm: 74%; }
+[data-pal="teal"] { --pb: #003d3a; --pi: #8eecd0; --pm: 74%; }
+[data-pal="indigo"] { --pb: #221c72; --pi: #c8c0ff; --pm: 75%; }
+[data-theme="light"] [data-pal="wine"] { --pb: #ffa0c9; --pi: #6e0a30; --pm: 88%; }
+[data-theme="light"] [data-pal="rust"] { --pb: #ebb53d; --pi: #842300; --pm: 100%; }
+[data-theme="light"] [data-pal="azure"] { --pb: #a9d4ff; --pi: #0b1d4f; --pm: 70%; }
+[data-theme="light"] [data-pal="forest"] { --pb: #afcd87; --pi: #041b06; --pm: 68%; }
+[data-theme="light"] [data-pal="aubergine"] { --pb: #fbc4d9; --pi: #2e0056; --pm: 68%; }
+[data-theme="light"] [data-pal="ice"] { --pb: #dde9f5; --pi: #044169; --pm: 78%; }
+[data-theme="light"] [data-pal="teal"] { --pb: #8eecd0; --pi: #003d3a; --pm: 77%; }
+[data-theme="light"] [data-pal="indigo"] { --pb: #c8c0ff; --pi: #221c72; --pm: 77%; }
+[data-pal]:not([data-pal="base"]) {
   --bg: var(--pb); --ink: var(--pi);
   --bg-2: color-mix(in oklab, var(--pi) 7%, var(--pb)); --bg-3: color-mix(in oklab, var(--pi) 13%, var(--pb));
   --muted: color-mix(in oklab, var(--pi) var(--pm), var(--pb)); --faint: color-mix(in oklab, var(--pi) 38%, var(--pb));
@@ -193,11 +186,10 @@ button { font: inherit; color: inherit; }
   .wordmark .full { display: none; } /* the mark alone stands for the name */
   .bar nav a { padding: 8px 8px; }
 }
-/* Phones: the links, Beta and the theme button share the bar, so each gives a little. */
+/* Phones: the links and the theme button share the bar, so each gives a little. */
 @media (max-width: 480px) {
   .bar nav { font-size: 0.8125rem; }
   .bar nav a { padding: 8px 6px; }
-  .beta { height: 30px; margin-left: 2px; padding: 0 10px; font-size: 0.8125rem; }
   .theme { width: 36px; height: 36px; margin-left: 0; }
 }
 @media (max-width: 380px) {
@@ -206,10 +198,6 @@ button { font: inherit; color: inherit; }
 @media (max-width: 370px) {
   .bar { padding-left: 8px; }
   .wordmark { display: none; }
-}
-/* The narrowest phones: Beta shows only while it is on (so it can be turned off again). */
-@media (max-width: 340px) {
-  html:not([data-look="beta"]) .beta { display: none; }
 }
 
 

@@ -44,8 +44,8 @@ export function initOrbs({ reduced }) {
   if (!canvases.length) return;
   const root = document.documentElement;
   const probe = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
-  // The dots take the card's colour (its token colour, or the palette's ink in beta); far dots fade towards
-  // the ground, which is dark in the dark theme and light in the light one, in beta too.
+  // The dots take the card's colour (its token colour, or the palette's ink in a palette block); far dots fade towards
+  // the ground, which is dark in the dark theme and light in the light one, palettes included.
   const ink = (el) => {
     probe.clearRect(0, 0, 1, 1);
     probe.fillStyle = getComputedStyle(el).color;
@@ -91,9 +91,9 @@ export function initOrbs({ reduced }) {
   }));
   const io = new IntersectionObserver((es) => { es.forEach((e) => { orbs.find((x) => x.el === e.target).seen = e.isIntersecting; }); kick(); });
   for (const o of orbs) { ro.observe(o.el); io.observe(o.el); }
-  // A new theme, look or palette changes the ink; the card switching on needs a still frame under reduced motion.
+  // A new theme changes the ink (each palette has a side for each theme); the card switching on needs a still frame under reduced motion.
   new MutationObserver(() => { orbs.forEach((o) => { o.tint = null; }); kick(); })
-    .observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-look'] });
+    .observe(root, { attributes: true, attributeFilter: ['data-theme'] });
   new MutationObserver(kick).observe(document.querySelector('.pj-stage') ?? root, { attributes: true, subtree: true, attributeFilter: ['class'] });
   document.addEventListener('visibilitychange', kick);
 }

@@ -2,7 +2,7 @@
    left or right of the subject, and the scroll timeline moves them in and out. */
 .story { position: relative; display: grid; }
 .stage, .track { grid-area: 1 / 1; }
-.stage { position: sticky; top: 0; height: 100svh; overflow: hidden; z-index: 1; } /* clear: the page's aura and grid are its ground until the 3D draws them */
+.stage { position: sticky; top: 0; height: 100svh; overflow: hidden; z-index: 1; } /* clear: the page's grid is its ground until the 3D draws it */
 .track { height: var(--track, 2600svh); pointer-events: none; }
 .gl { position: absolute; inset: 0; width: 100%; height: 100%; }
 
@@ -73,8 +73,8 @@ html:not(.js) .hello-panel { padding: 0; } /* the name is sized to the screen le
   .hello-actions { margin-top: 16px; }
 }
 
-/* Beta: the story's ground is its palette too, so a stage drawn at less than full opacity stays that colour. */
-[data-look="beta"] .story[data-pal] { background-color: var(--bg); }
+/* The story's ground is its palette too, so a stage drawn at less than full opacity stays that colour. */
+.story[data-pal] { background-color: var(--bg); }
 
 /* The scale bar belongs to the zoom. */
 .js .scalebar { opacity: 0; }

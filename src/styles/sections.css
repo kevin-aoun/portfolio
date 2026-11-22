@@ -32,7 +32,7 @@
 .truler .tnow::before { left: auto; right: 0; background: var(--ink); }
 .torg { grid-column: 1; align-self: center; font-size: var(--step-small); font-weight: 500; line-height: 1.2; }
 .ttrack { position: relative; grid-column: 2; }
-.ttrack i { position: absolute; top: 0; bottom: 0; left: var(--x); width: var(--w); background: linear-gradient(var(--band), var(--band)), var(--bg); } /* solid: the aura stays under the chart */
+.ttrack i { position: absolute; top: 0; bottom: 0; left: var(--x); width: var(--w); background: linear-gradient(var(--band), var(--band)), var(--bg); } /* solid: the grain and grid stay under the chart */
 .ttrack i:nth-of-type(even) { background: linear-gradient(var(--band-2), var(--band-2)), var(--bg); }
 .tbar, .tl { position: absolute; left: var(--x); width: var(--w); top: calc((var(--row) - var(--bar)) / 2); height: var(--bar); }
 .tbar { border-radius: 4px; background: color-mix(in srgb, var(--hue) 55%, transparent); transition: background-color 200ms; }
@@ -183,11 +183,11 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
   .foot-line a { padding: 12px 0; }
 }
 
-/* Beta (src/beta.js): every section is a block in its own colours, full width, with the template's paper
+/* The palettes (src/palettes.js): every section is a block in its own colours, full width, with the template's paper
    grain over its ground and under its words. The contact band and the footer share one plain block. Bars on
    the trace go lighter in a palette block, so the ink labels on them still read. */
-[data-look="beta"] .sec, [data-look="beta"] .foot { position: relative; isolation: isolate; background-color: var(--bg); }
-[data-look="beta"] .sec { padding-top: var(--gap-section); }
-[data-look="beta"] .sec::before, [data-look="beta"] .foot::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: var(--grain); mix-blend-mode: overlay; opacity: 0.6; pointer-events: none; }
-[data-look="beta"] [data-pal]:not([data-pal="base"]) .tbar { background: color-mix(in srgb, var(--hue) 22%, transparent); }
-[data-look="beta"] [data-pal]:not([data-pal="base"]) .tbar.hot { background: var(--hue); }
+.sec, .foot { position: relative; isolation: isolate; background-color: var(--bg); }
+.sec { padding-top: var(--gap-section); }
+.sec::before, .foot::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: var(--grain); mix-blend-mode: overlay; opacity: 0.6; pointer-events: none; }
+[data-pal]:not([data-pal="base"]) .tbar { background: color-mix(in srgb, var(--hue) 22%, transparent); }
+[data-pal]:not([data-pal="base"]) .tbar.hot { background: var(--hue); }

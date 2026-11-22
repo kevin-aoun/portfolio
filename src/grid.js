@@ -78,7 +78,7 @@ export function initGrid() {
   for (const ev of ['pointerleave', 'touchend', 'blur']) addEventListener(ev, () => { last = null; }, { passive: true });
   document.documentElement.addEventListener('pointerleave', () => { last = null; });
   addEventListener('resize', resize);
-  new MutationObserver(colours).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-look'] });
+  new MutationObserver(colours).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   resize();
   colours();
 }

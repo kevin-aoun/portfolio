@@ -16,7 +16,6 @@ export const header = () => `
 <header class="bar">
   <a class="wordmark" href="#top" aria-label="${person.name}, back to the top"><svg class="mark" viewBox="264.6 78.6 793 983.9" aria-hidden="true"><path d="${MARK_PATH}"/></svg><span class="full">${person.name}</span></a>
   <nav aria-label="Sections"><a href="#projects">Projects</a><a href="#writing">Writing</a><a href="#work">Work</a><a href="#contact">Contact</a></nav>
-  <button class="beta" type="button" aria-pressed="false" title="Colours from Kevin's templates, dealt anew each visit">Beta</button>
   <button class="theme" type="button" aria-label="Switch to light theme">${sun}${moon}</button>
 </header>`;
 

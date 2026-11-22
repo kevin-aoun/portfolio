@@ -4,7 +4,7 @@
 import { createTimeline, onScroll, stagger, splitText, utils } from 'animejs';
 import { body } from './content.js';
 import { initGraphs } from './graphs/motion.js';
-import { look } from './beta.js';
+import { palettes } from './palettes.js';
 
 const clamp = (x) => Math.min(1, Math.max(0, x));
 // The stylesheets' stacked layout (phones, and phones on their side); scene.js keeps the same test.
@@ -188,24 +188,24 @@ export function initStory(stage, { reduced }) {
     if (scalebar && sb !== scalebar.classList.contains('on')) scalebar.classList.toggle('on', sb);
     palette(x);
   }
-  // Beta: a beat with words holds its dealt palette, coming in over the camera's arrival and going out as it
+  // A beat with words holds its dealt palette, coming in over the camera's arrival and going out as it
   // leaves; everywhere else the stage is the plain block. The words take the palette's colours (data-pal).
   let lastDuo = '';
   function palette(x) {
     let pal = 'base', e = 0;
-    if (look.on) for (const pn of panels) {
-      const name = look.story[pn.g.key], { h0, h1, final } = pn.g;
+    for (const pn of panels) {
+      const name = palettes.story[pn.g.key], { h0, h1, final } = pn.g;
       if (!name || x <= h0 - 30 || (!final && x >= h1 + 30)) continue;
       pal = name;
       e = x < h0 ? (x - h0 + 30) / 30 : final || x <= h1 ? 1 : 1 - (x - h1) / 30;
       e = e * e * (3 - 2 * e);
     }
-    const c = look.colours(pal), key = `${c}|${e.toFixed(3)}`;
+    const c = palettes.colours(pal), key = `${c}|${e.toFixed(3)}`;
     if (key === lastDuo) return;
     lastDuo = key;
     // The shader wants the dark colour first: the ground in the dark theme, the ink in the light one.
     if (c) stage?.setDuo(...(document.documentElement.dataset.theme === 'light' ? [c[1], c[0]] : c), e); else stage?.setDuo(null, null, 0);
-    if (look.on) story.dataset.pal = pal; else delete story.dataset.pal;
+    story.dataset.pal = pal;
   }
   let lastPrefill = null;
 
@@ -228,7 +228,7 @@ export function initStory(stage, { reduced }) {
   apply(0);
 
   return {
-    // Beta or the theme changed: the stage and the words take the palette for where the reader is now.
+    // The theme changed: the stage and the words take the palette's side for it.
     repaint() { lastDuo = ''; apply(state.p); },
     rebuild() {
       if (observer.target) observer.refresh(); // the observer only takes its target on the next frame

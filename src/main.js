@@ -13,8 +13,7 @@ import { initOrbs } from './sections/orb.js';
 import { initField } from './footer/field.js';
 import { bindTokenSwitches } from './tokens.js';
 import { initGrid } from './grid.js';
-import { initAura } from './aura.js';
-import { initBeta } from './beta.js';
+import { initPalettes } from './palettes.js';
 
 const root = document.documentElement;
 root.classList.add('js');
@@ -23,11 +22,10 @@ let stage = null, story = null;
 
 async function boot() {
   initGrid();
-  initAura({ reduced });
+  initPalettes();
   bindTokenSwitches();
-  // Beta's palettes have a side for each theme, so a new theme repaints them too.
+  // The palettes have a side for each theme, so a new theme repaints them too.
   initTheme((t) => { stage?.applyTheme(t); story?.repaint(); });
-  initBeta(() => story?.repaint());
   // The 3D chunk starts loading now; only the story waits for it, the sections below it do not.
   const scene = import('./scene/scene.js');
   initContact();

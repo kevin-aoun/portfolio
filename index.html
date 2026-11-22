@@ -25,12 +25,6 @@
       var q = new URLSearchParams(location.search).get('theme');
       if (q === 'light' || q === 'dark') t = q;
       document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
-      // Beta colours, if chosen before (or ?look=beta): set now too, so the page never flashes the default.
-      var b = null;
-      try { b = localStorage.getItem('look'); } catch (e) {}
-      var l = new URLSearchParams(location.search).get('look');
-      if (l === 'beta' || l === 'default') b = l;
-      if (b === 'beta') document.documentElement.dataset.look = 'beta';
     })();
   </script>
   <script type="module" src="/src/main.js"></script>

@@ -8,7 +8,6 @@ import { Streaks, FX_LAYER } from './streaks.js';
 import { layoutCallouts } from './callouts.js';
 import { buildRobot } from './robot.js';
 import { brush, CELL, MAJOR, DIM } from '../grid.js';
-import { stageAura, auraAt, current, sweepAura } from '../aura.js';
 
 const S_CORE = 0.03;  // logic array inside the SM
 const S_DIE = 0.064;  // SM inside the die (mm)
@@ -88,7 +87,6 @@ uniform vec2 texel; uniform vec3 ink; uniform vec3 hue[5]; uniform vec3 bg; unif
 uniform float cNear; uniform float cFar; uniform float fogNear; uniform float fogFar; uniform float vignette; uniform vec2 warm; uniform float hueRef[5]; uniform vec3 hueDir[5];
 uniform vec3 bgS; uniform vec3 gridInk; uniform vec2 gridA; uniform float viewTop;
 uniform sampler2D tGrid; uniform vec4 gridDims; uniform float gridH; uniform float gridDim;
-uniform vec4 auraL[5]; uniform vec3 auraC[5]; uniform float auraScreen; uniform vec2 auraCap;
 uniform vec3 duoBg; uniform vec3 duoInk; uniform float duoMix;
 varying vec2 vUv;
 float lin(float d){ return cNear + d * (cFar - cNear); }
@@ -112,27 +110,18 @@ void main(){
   float best = -1.; vec3 line = ink;
   for (int i = 0; i < 5; i++) { float s = dot(chroma, hueDir[i]) - hueRef[i]; if (s > best) { best = s; line = hue[i]; } }
   vec3 col = mix(c.rgb, mix(ink, line, smoothstep(warm.x, warm.y, best)), e * inkMix);
-  // The aura (src/aura.js): the lights the page draws behind everything, here on the stage's ground, mixed
-  // as the page mixes them (in sRGB). px: CSS px from the screen's top left (the canvas slides up off the
-  // screen as the story ends, by viewTop).
+  // px: CSS px from the screen's top left (the canvas slides up off the screen as the story ends, by viewTop).
   vec2 px = vec2(gl_FragCoord.x, gridH - gl_FragCoord.y) / gridDims.w + vec2(0., viewTop);
-  vec3 s = vec3(0.);
-  for (int i = 0; i < 5; i++) { vec2 d = (px - auraL[i].xy) / auraL[i].z; float q = dot(d, d); s += auraC[i] * auraL[i].w * exp(-2.5 * q * q * q); }
-  s = min(s, vec3(1.));
-  // Its ceiling (aura.js): past the knee, brightness rolls off toward the cap, so it never outshines the content.
-  float sy = dot(s, vec3(0.2126, 0.7152, 0.0722)), kw = auraCap.y - auraCap.x;
-  if (sy > auraCap.x) s *= (auraCap.x + kw * (1. - exp(-(sy - auraCap.x) / kw))) / sy;
-  vec3 groundS = auraScreen > 0.5 ? 1. - (1. - bgS) * (1. - s) : bgS * (1. - s);
-  // The page's grain (aura.js): noise around mid grey, overlaid, so it shows in the light, not in the black.
+  // The ground with the blocks' paper grain (palettes.js): noise around mid grey, overlaid.
+  vec3 groundS = bgS;
   vec2 gp = floor(gl_FragCoord.xy / gridDims.w); // one grain per CSS px, as the page's tile
   float gn = (fract(sin(dot(gp, vec2(12.9898, 78.233))) * 43758.545) + fract(sin(dot(gp, vec2(39.346, 11.135))) * 24634.634) + fract(sin(dot(gp, vec2(73.156, 52.235))) * 13981.751)) / 3. - 0.5;
   gn *= 80. / 255.;
   groundS = mix(groundS * (1. + 2. * gn), groundS + 2. * gn * (1. - groundS), step(0.5, groundS));
   vec3 ground = toLin(groundS);
   bool empty = dn > cFar * 0.98;
-  // The aura is only ever behind: it lights the empty ground, printed text there stays over it, and the
-  // parts fade (fog, vignette) into the unlit ground, never into the light.
-  if (empty) col = auraScreen > 0.5 ? max(col, ground) : min(col, ground);
+  // Printed text on empty ground stays over the grain: the lighter of the two on a dark ground, the darker on paper.
+  if (empty) col = dot(bgS, vec3(0.2126, 0.7152, 0.0722)) < 0.5 ? max(col, ground) : min(col, ground);
   // Fog by depth; nothing drawn there (only printed text, which writes no depth) is left unfogged.
   col = mix(col, bg, (empty ? 0. : smoothstep(fogNear, fogFar, dn)) * 0.92);
   vec2 q = (vUv - 0.5) * vec2(1.0, 0.86);
@@ -151,7 +140,7 @@ void main(){
       col = toLin(mix(groundS, gridInk, (major ? gridA.y : gridA.x) * (gridDim + (1. - gridDim) * e)));
     }
   }
-  // Beta (src/beta.js): the drawing in one template's two colours. Brightness sets each pixel's place between
+  // The palettes (src/palettes.js): the drawing in one template's two colours. Brightness sets each pixel's place between
   // its dark colour (duoBg) and its light one (duoInk), in sRGB as the page mixes: on the dark theme the ground
   // is the dark one and lines go to ink; on paper the ink is the dark one and the paper goes to the ground.
   if (duoMix > 0.) {
@@ -211,7 +200,6 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     hueDir: { value: [0, 1, 2, 3, 4].map(() => new THREE.Vector3(1, 0, 0)) },
     tGrid: { value: null }, gridDims: { value: new THREE.Vector4(1, 1, CELL, 1) }, gridH: { value: 1 }, gridDim: { value: DIM },
     bgS: { value: new THREE.Vector3() }, gridInk: { value: new THREE.Vector3() }, gridA: { value: new THREE.Vector2() }, viewTop: { value: 0 },
-    auraL: { value: Array.from({ length: 5 }, () => new THREE.Vector4(0, 0, 1, 0)) }, auraC: { value: Array.from({ length: 5 }, () => new THREE.Vector3()) }, auraScreen: { value: 1 }, auraCap: { value: new THREE.Vector2(1, 2) },
     duoBg: { value: new THREE.Vector3() }, duoInk: { value: new THREE.Vector3() }, duoMix: { value: 0 },
   };
   const quadMat = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: U, depthTest: false, depthWrite: false });
@@ -396,7 +384,6 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     const fOf = (k) => (!phone ? (k.fs && H < 820 ? k.fs : k.f) : land && k.lf ? k.lf : [k.pf[0], fy(k)]);
     const fa = fOf(a), fb = fOf(b);
     frame = [fa[0] + (fb[0] - fa[0]) * sm(f), fa[1] + (fb[1] - fa[1]) * sm(f)];
-    stageAura(a.id, b.id, t, frame[0], frame[1]); // the light moves with the subject, in each beat's colours
     const late = kB.late ? sm(Math.min(1, Math.max(0, (f0 - kB.late) / (1 - kB.late)))) : sm(f0);
     for (const p of PARAMS) params[p] = (kA.p[p] ?? 0) + ((kB.p[p] ?? 0) - (kA.p[p] ?? 0)) * win(p, late);
     // Field of view in metres for the scale bar: interpolate the keys' widths in log space.
@@ -464,7 +451,6 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     }
     pulseOn = flicker && time < pulseUntil ? 1 : 0;
     const on = Math.max(p.tOn, pulseOn, S.hover);
-    current.on = p.eOn > 0.5 ? on : 0; // the aura breathes with the current
     if (S.hover > 0.5 && p.eOn > 0.5 && !reducedMotion && Math.random() < dt / 33) electron(time);
     T.parts.gate.material.color.set(on > 0.5 ? P.fills[0] : P.tones[3]);
     electrons.mesh.visible = p.eOn > 0.02;
@@ -554,7 +540,7 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     // The robot; the chip waits above its head, then goes in, and the die flashes as the head closes.
     const r = R.update(p, time, reducedMotion);
     pkg.position.y = r.lift;
-    if (r.boot) { smE.fill(1); sweepAura(time); }
+    if (r.boot) smE.fill(1);
   }
 
   // --- callouts ---
@@ -652,16 +638,6 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     gridTex.needsUpdate = true;
   }
 
-  // --- the aura's lights (src/aura.js), as the page draws them ---
-  function syncAura(now) {
-    const o = auraAt(now);
-    U.auraL.value.forEach((v, i) => v.fromArray(o.L, i * 4));
-    U.auraC.value.forEach((v, i) => v.fromArray(o.C, i * 3));
-    U.auraScreen.value = o.screen ? 1 : 0;
-    U.auraCap.value.fromArray(o.cap);
-    U.viewTop.value = canvas.getBoundingClientRect().top;
-  }
-
   // --- pointer: parallax and a hand on the switch ---
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   let pointer = null;
@@ -718,7 +694,7 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     frameCamera(target);
     animateModels(now, dt);
     syncGrid();
-    syncAura(now);
+    U.viewTop.value = canvas.getBoundingClientRect().top;
     hoverGate();
     canvas.style.opacity = String(1 - params.dim * 0.8);
     // Colour pass, then normals and depth, then the edge shader to the screen.
@@ -775,7 +751,7 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     resize() { resize(); bakeKeys(); }, applyTheme, start, stop, mountOverlays,
     setCallouts(beat) { if (beat !== callBeat) { callBeat = beat; assign = null; } },
     setPanelRect(r) { panelRect = r; },
-    // Beta: a template's dark and light colour (hex) and how far the drawing has gone into them (0: none).
+    // Palettes: a template's dark and light colour (hex) and how far the drawing has gone into them (0: none).
     setDuo(bg, ink, mix) {
       U.duoMix.value = mix;
       if (!mix) return;

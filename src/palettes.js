@@ -1,6 +1,6 @@
-// Beta colours: Kevin's own two-colour templates (templates/), a ground and an ink each, sampled from the
-// images. With beta on, the page reads as blocks, the way a long website does: a block in one palette, then
-// a plain block, then another palette. The palettes are dealt anew on every visit, never one twice.
+// The page's colours: Kevin's own two-colour templates (templates/, kept out of the repo), a ground and an
+// ink each, sampled from the images. The page reads as blocks, the way a long website does: a block in one
+// palette, then a plain block, then another palette. The palettes are dealt anew on every visit, never one twice.
 // Each palette is a pair of colours with two sides: in the dark theme its dark colour is the ground and its
 // light one the ink; in the light theme the other way round. Where Kevin made both sides as templates
 // (rust and amber, forest and sage, aubergine and pink) each theme takes its own template; the rest swap.
@@ -27,23 +27,24 @@ const root = document.documentElement;
 // The deal, made once per visit: story beats first, then the palette blocks below, in page order.
 const deck = Object.keys(PALETTES);
 for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
-export const look = {
-  get on() { return root.dataset.look === 'beta'; },
+export const palettes = {
   story: Object.fromEntries(BEATS.map((b, i) => [b, deck[i]])),
   // A palette's [ground, ink] in the theme now showing.
   colours: (name) => PALETTES[name]?.[root.dataset.theme === 'light' ? 'light' : 'dark'],
 };
 
-export function initBeta(onChange) {
+// Deals the blocks below the story, and lays the templates' paper grain over every block (sections.css):
+// a tile of noise around mid grey, overlaid. The 3D stage makes the same grain on its ground.
+export function initPalettes() {
   let k = BEATS.length;
   for (const [sel, pal] of BLOCKS) { const el = document.querySelector(sel); if (el) el.dataset.pal = pal ? deck[k++] : 'base'; }
-  const btn = document.querySelector('.beta');
-  const sync = () => btn?.setAttribute('aria-pressed', String(look.on));
-  sync();
-  btn?.addEventListener('click', () => {
-    if (look.on) delete root.dataset.look; else root.dataset.look = 'beta';
-    try { localStorage.setItem('look', look.on ? 'beta' : 'default'); } catch (e) { /* private mode: not remembered */ }
-    sync();
-    onChange?.(look.on);
-  });
+  const c = document.createElement('canvas'), S = 256;
+  c.width = c.height = S;
+  const g = c.getContext('2d'), d = g.createImageData(S, S);
+  for (let i = 0; i < d.data.length; i += 4) {
+    const v = 128 + ((Math.random() + Math.random() + Math.random()) / 3 - 0.5) * 2 * 40;
+    d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255;
+  }
+  g.putImageData(d, 0, 0);
+  root.style.setProperty('--grain', `url(${c.toDataURL()})`);
 }
