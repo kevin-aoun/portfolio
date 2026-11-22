@@ -36,8 +36,8 @@
 .js .panel.live { opacity: 1; pointer-events: auto; }
 
 /* The name in its tokens, with each token's ID under it. */
-/* Raised so its call to action sits about two thirds of the way down the screen. */
-.hello-panel { left: var(--margin); right: var(--margin); width: auto; top: auto; bottom: 28svh; translate: none; }
+/* Raised so its call to action sits about three quarters of the way down the screen. */
+.hello-panel { left: var(--margin); right: var(--margin); width: auto; top: auto; bottom: 20svh; translate: none; }
 .tokname { --nfs: min(14rem, calc((100vw - 2 * var(--margin)) / var(--name-em))); display: flex; flex-wrap: nowrap; font-family: var(--display-face); font-weight: var(--display-weight); font-size: var(--nfs); line-height: 0.92; letter-spacing: var(--display-tracking); }
 .ntok { display: inline-grid; grid-template-rows: auto auto; justify-items: start; }
 .nbg, .nt { grid-area: 1 / 1; }
@@ -62,7 +62,7 @@ html:not(.js) .hello-panel { padding: 0; } /* the name is sized to the screen le
   .nid { font-size: 0.8125rem; padding-left: 0.15em; }
   /* A token that starts with a space gets its ID under its first letter, so neighbouring IDs never touch. */
   .ntok.lead .nid { padding-left: calc(var(--nfs) * 0.28); }
-  .hello-panel { background: none; padding: 0 var(--margin); left: 0 !important; right: 0 !important; bottom: 28svh; }
+  .hello-panel { background: none; padding: 0 var(--margin); left: 0 !important; right: 0 !important; bottom: 20svh; }
   .hello-actions { justify-content: center; }
   .scalebar { right: auto; left: 16px; top: calc(var(--bar-top) + var(--bar-h) + 12px); bottom: auto; }
   .counts { gap: 20px; }

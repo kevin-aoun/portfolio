@@ -5,7 +5,7 @@ export const person = {
   name: 'Kevin Aoun',
   role: 'AI engineer',
   email: 'business@kevinaoun.dev', // Cloudflare Email Routing forwards it to Kevin's Gmail
-  call: 'https://cal.com/kevin-1',
+  call: 'https://cal.com/kevin-aoun',
   links: [
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/kevin-w-aoun/' },
     { label: 'GitHub', href: 'https://github.com/kevin-aoun' },
