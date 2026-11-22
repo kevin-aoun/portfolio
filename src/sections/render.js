@@ -225,7 +225,6 @@ export const contactSection = () => `
     </form>
     <ul class="ct-links hues">
       <li class="ct-call"><a class="btn btn-cta" href="${person.call}"${ext(person.call)}>Book a call</a></li>
-      <li>${out(`mailto:${person.email}`, person.email)}</li>
       ${person.links.map((l) => `<li>${out(l.href, l.label)}</li>`).join('')}
     </ul>
   </div>
@@ -236,5 +235,5 @@ const footLinks = ['GitHub', 'LinkedIn'].map((l) => person.links.find((x) => x.l
 export const footer = () => `
 <footer class="foot">
   ${fieldMarkup()}
-  <p class="foot-line hues"><span>© ${today.getFullYear()} ${esc(person.name)}, ${esc(person.role)} in Beirut</span>${footLinks.map((l) => out(l.href, l.label)).join('')}${out(`mailto:${person.email}`, 'Email')}</p>
+  <p class="foot-line hues"><span>© ${today.getFullYear()} ${esc(person.name)}, ${esc(person.role)} in Beirut</span>${footLinks.map((l) => out(l.href, l.label)).join('')}${out(`mailto:${person.email}`, person.email)}</p>
 </footer>`;

@@ -9,9 +9,6 @@
   --bg-2: #151513;
   --bg-3: #1f1e1b;
   --ink: #ecebe5;
-  --grid-ink: 236 235 229; /* the drafting grid (src/grid.js), brushed: its lines' ink and opacities */
-  --grid-a: 0.06;
-  --grid-a-major: 0.12;
   --band: rgba(236, 235, 229, 0.04); /* a band of the page set off from the rest, the grid still under it */
   --band-2: rgba(236, 235, 229, 0.085);
   --muted: #a3a097;
@@ -33,9 +30,6 @@
   --bg-2: #e7e4dd;
   --bg-3: #dcd8cf;
   --ink: #191814;
-  --grid-ink: 25 24 20;
-  --grid-a: 0.085;
-  --grid-a-major: 0.15;
   --band: rgba(25, 24, 20, 0.045);
   --band-2: rgba(25, 24, 20, 0.095);
   --muted: #57534a;
@@ -77,9 +71,6 @@
 *, *::before, *::after { box-sizing: border-box; }
 /* Proximity snapping on each section's heading (sections.css): a scroll that ends near one settles on it. */
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 88px; scroll-snap-type: y proximity; background-color: var(--bg); transition: background-color 400ms; }
-/* Behind everything: the drafting grid (src/grid.js); the 3D stage draws it on its own ground too. Each block's
-   paper grain is its own (sections.css). */
-.gridfx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 body { margin: 0; color: var(--ink); font-family: var(--text-face); font-size: var(--step-body); line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: clip; transition: color 400ms; }
 img, svg, canvas { display: block; max-width: 100%; }
 a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; }
@@ -112,27 +103,27 @@ button { font: inherit; color: inherit; }
 /* Buttons wear the bar's glass (same tint, edge and blur); their colour only tints the edge on hover. */
 .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 24px; background: var(--glass); color: var(--ink); text-decoration: none; font-weight: 500; border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); cursor: pointer; border-radius: var(--radius); transition: transform 160ms var(--ease-out), background-color 200ms, border-color 200ms; white-space: nowrap; }
 .btn:active { transform: translateY(1px) scale(0.98); }
-/* The main call to action (Book a call): Kevin's red tinted into the ground, and a light that runs round its
-   edge, a conic gradient on the border box turned by an animated angle. Without @property support the light
-   just sits still. */
+/* The main call to action (Book a call), the one primary button: filled with the text colour, its label in
+   the ground's, and a light in Kevin's red that runs round its edge (a conic gradient on the border box,
+   turned by an animated angle; in a palette block the red is the ink, so the light is a deeper ink). Without
+   @property support the light just sits still. */
 @property --cta-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 .btn-cta {
-  --hue: var(--c3);
-  --cta-fill: color-mix(in oklab, var(--hue) 16%, var(--bg));
-  border-color: transparent;
+  --cta-fill: var(--ink);
+  --cta-light: color-mix(in oklab, var(--c3) 70%, var(--bg));
+  color: var(--bg);
+  border: 2px solid transparent;
   background: linear-gradient(var(--cta-fill), var(--cta-fill)) padding-box,
-    conic-gradient(from var(--cta-a), color-mix(in oklab, var(--hue) 34%, transparent) 0% 62%, var(--hue) 76%, color-mix(in oklab, var(--hue) 45%, white) 82%, var(--hue) 88%, color-mix(in oklab, var(--hue) 34%, transparent) 100%) border-box;
-  box-shadow: 0 10px 32px -14px color-mix(in oklab, var(--hue) 70%, transparent);
+    conic-gradient(from var(--cta-a), var(--cta-fill) 0% 64%, var(--cta-light) 78%, var(--cta-fill) 92%) border-box;
+  box-shadow: 0 12px 32px -16px color-mix(in oklab, var(--ink) 60%, transparent);
   animation: cta-light 4s linear infinite;
 }
 @keyframes cta-light { to { --cta-a: 360deg; } }
 @media (prefers-reduced-motion: reduce) { .btn-cta { animation: none; } }
 @media (hover: hover) and (pointer: fine) {
   .btn:not(.btn-cta):hover { background: var(--glass-strong); border-color: color-mix(in oklab, var(--hue) 55%, var(--glass-edge)); }
-  .btn-cta:hover { --cta-fill: color-mix(in oklab, var(--hue) 26%, var(--bg)); }
+  .btn-cta:hover { --cta-fill: color-mix(in oklab, var(--ink) 86%, var(--bg)); }
 }
-.textlink { color: var(--ink); text-decoration-color: var(--hue); }
-.textlink:hover { color: var(--hue); }
 /* A list's items take the five colours in order, round again after the fifth. */
 .hues > :nth-child(5n+1) { --hue: var(--c0); }
 .hues > :nth-child(5n+2) { --hue: var(--c1); }

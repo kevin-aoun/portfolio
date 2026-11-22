@@ -12,7 +12,7 @@ import { initSections } from './sections/motion.js';
 import { initOrbs } from './sections/orb.js';
 import { initField } from './footer/field.js';
 import { bindTokenSwitches } from './tokens.js';
-import { initGrid } from './grid.js';
+import { initBrush } from './brush.js';
 import { initPalettes } from './palettes.js';
 
 const root = document.documentElement;
@@ -21,7 +21,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let stage = null, story = null;
 
 async function boot() {
-  initGrid();
+  initBrush();
   initPalettes();
   bindTokenSwitches();
   // The palettes have a side for each theme, so a new theme repaints them too.

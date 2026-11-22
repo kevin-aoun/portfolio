@@ -7,7 +7,9 @@ import { dieTexture, dotsTexture, tracesTexture } from './textures.js';
 import { Streaks, FX_LAYER } from './streaks.js';
 import { layoutCallouts } from './callouts.js';
 import { buildRobot } from './robot.js';
-import { brush, CELL, MAJOR, DIM } from '../grid.js';
+import { brush, CW, CH } from '../brush.js';
+// The brush's glyphs: its ramp from a dot at rest up to #, with a stroke's four hatchings in the middle.
+const GLYPHS = ['.', ':', '-', '\\', '|', '/', '+', '#'];
 
 const S_CORE = 0.03;  // logic array inside the SM
 const S_DIE = 0.064;  // SM inside the die (mm)
@@ -18,7 +20,7 @@ const PHONE_Q = '(max-width: 900px), (max-width: 1000px) and (max-height: 500px)
 // tinted surfaces (the tokenizer's translucent tints, as in base.css, at 0.75 of their strength over the page).
 const PALETTES = {
   dark: {
-    bg: '#0c0c0b', ink: '#d6d3c8', inkMix: 0.8, grid: ['#ecebe5', 0.06, 0.12], fx: 'add', warm: [0.008, 0.02], vignette: 0.62,
+    bg: '#0c0c0b', ink: '#d6d3c8', inkMix: 0.8, grid: ['#ecebe5', 0.06, 0.5], fx: 'add', warm: [0.008, 0.02], vignette: 0.62,
     hues: ['#8965fe', '#51e26d', '#faaa07', '#fb2438', '#04b6ee'],
     fills: ['#281c48', '#2e5b35', '#63481b', '#612021', '#164b5f'],
     tones: ['#0c0c0b', '#121211', '#181816', '#1f1e1b'],
@@ -26,7 +28,7 @@ const PALETTES = {
     dots: '#3c3a34', traces: '#5a574e',
   },
   light: {
-    bg: '#f1efea', ink: '#1d1b17', inkMix: 0.9, grid: ['#191814', 0.085, 0.15], fx: 'mul', warm: [0.08, 0.18], vignette: 0.2,
+    bg: '#f1efea', ink: '#1d1b17', inkMix: 0.9, grid: ['#191814', 0.07, 0.55], fx: 'mul', warm: [0.08, 0.18], vignette: 0.2,
     hues: ['#7021f3', '#00750b', '#965400', '#c90b26', '#006a9c'],
     fills: ['#c9bae5', '#bee9c0', '#f2d6a6', '#f0aeac', '#a5d9ea'],
     tones: ['#f1efea', '#e8e6e1', '#dedcd6', '#d2d0c9'],
@@ -75,7 +77,7 @@ const KEYS = {
   memoryB: { in: 'D', t: [0, 1.0, 0], dir: rotY([0.5, 0.62, 0.6], 0.12), d: 146, f: [0.26, 0.52], pf: [0.5, 0.23], pz: 2.4, p: { ...ROB, arm: 1, torso: 1, legs: 1, head: 1, open: 1 } },
   // Right after the hero: the transistor beside the name, in the third of the screen it leaves free, never over
   // it or under the bar.
-  hello: { in: 'T', t: [0, 0.75, 0], dir: [7.2, 4.0, 7.4], d: 24, f: [0.8, 0.25], pf: [0.5, 0.28], pz: 2.15, lf: [0.82, 0.25], lz: 1, fov: 3.6e-7, p: { tOn: 0, eOn: 1, pace: 0, arr: 0, wires: 0, toC: 0, toD: 0, pkg: 0, board: 0, power: 0, dim: 0.28 } },
+  hello: { in: 'T', t: [0, 0.75, 0], dir: [7.2, 4.0, 7.4], d: 24, f: [0.82, 0.19], pf: [0.5, 0.2], pz: 2.4, lf: [0.84, 0.19], lz: 1, fov: 3.6e-7, p: { tOn: 0, eOn: 1, pace: 0, arr: 0, wires: 0, toC: 0, toD: 0, pkg: 0, board: 0, power: 0, dim: 0.28 } },
 };
 const PARAMS = ['tOn', 'eOn', 'pace', 'arr', 'wires', 'nand', 'toC', 'toD', 'pkg', 'sub', 'expl', 'board', 'power', 'dim', 'robIn', 'arm', 'torso', 'legs', 'head', 'open', 'chipUp', 'glow'];
 const EASE = { lin: (t) => t, in: (t) => t * t * t, out: (t) => 1 - Math.pow(1 - t, 3), inOut: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2) };
@@ -86,7 +88,7 @@ uniform sampler2D tColor; uniform sampler2D tNormal; uniform sampler2D tDepth;
 uniform vec2 texel; uniform vec3 ink; uniform vec3 hue[5]; uniform vec3 bg; uniform float inkMix;
 uniform float cNear; uniform float cFar; uniform float fogNear; uniform float fogFar; uniform float vignette; uniform vec2 warm; uniform float hueRef[5]; uniform vec3 hueDir[5];
 uniform vec3 bgS; uniform vec3 gridInk; uniform vec2 gridA; uniform float viewTop;
-uniform sampler2D tGrid; uniform vec4 gridDims; uniform float gridH; uniform float gridDim;
+uniform sampler2D tGrid; uniform vec4 gridDims; uniform float gridH; uniform float dpr; uniform sampler2D tGlyph;
 uniform vec3 duoBg; uniform vec3 duoInk; uniform float duoMix;
 varying vec2 vUv;
 float lin(float d){ return cNear + d * (cFar - cNear); }
@@ -111,10 +113,10 @@ void main(){
   for (int i = 0; i < 5; i++) { float s = dot(chroma, hueDir[i]) - hueRef[i]; if (s > best) { best = s; line = hue[i]; } }
   vec3 col = mix(c.rgb, mix(ink, line, smoothstep(warm.x, warm.y, best)), e * inkMix);
   // px: CSS px from the screen's top left (the canvas slides up off the screen as the story ends, by viewTop).
-  vec2 px = vec2(gl_FragCoord.x, gridH - gl_FragCoord.y) / gridDims.w + vec2(0., viewTop);
+  vec2 px = vec2(gl_FragCoord.x, gridH - gl_FragCoord.y) / dpr + vec2(0., viewTop);
   // The ground with the blocks' paper grain (palettes.js): noise around mid grey, overlaid.
   vec3 groundS = bgS;
-  vec2 gp = floor(gl_FragCoord.xy / gridDims.w); // one grain per CSS px, as the page's tile
+  vec2 gp = floor(gl_FragCoord.xy / dpr); // one grain per CSS px, as the page's tile
   float gn = (fract(sin(dot(gp, vec2(12.9898, 78.233))) * 43758.545) + fract(sin(dot(gp, vec2(39.346, 11.135))) * 24634.634) + fract(sin(dot(gp, vec2(73.156, 52.235))) * 13981.751)) / 3. - 0.5;
   gn *= 80. / 255.;
   groundS = mix(groundS * (1. + 2. * gn), groundS + 2. * gn * (1. - groundS), step(0.5, groundS));
@@ -126,19 +128,25 @@ void main(){
   col = mix(col, bg, (empty ? 0. : smoothstep(fogNear, fogFar, dn)) * 0.92);
   vec2 q = (vUv - 0.5) * vec2(1.0, 0.86);
   col = mix(col, empty ? ground : bg, smoothstep(0.34, 0.92, length(q)) * vignette);
-  // The page's drafting grid (src/grid.js) on empty ground: the same cells from the top left, dim at rest and
-  // lit where the pointer has just brushed (tGrid: one value per cell; gridDims: columns, rows, cell in CSS px,
-  // pixel ratio). A line is as lit as the brighter of the two cells it bounds.
+  // The brush (src/brush.js) on empty ground: a character per cell from the top left (gridDims: columns, rows,
+  // cell size in CSS px). At rest a faint dot; inked, a glyph down the ramp . : (the stroke's own hatching) + #,
+  // each cell's grain nudging it a step so a stroke's edge frays. Now and then an inked cell takes a token
+  // colour instead of the ink, as the footer's trees do. gridA: the alpha at rest and fully inked.
   if (empty) {
-    vec2 cell = floor(px / gridDims.z);
-    vec2 on = step(mod(px, gridDims.z), vec2(1.));
-    if (on.x + on.y > 0.) {
-      float here = texture2D(tGrid, (cell + 0.5) / gridDims.xy).r, e = 0.;
-      if (on.x > 0.) e = max(here, texture2D(tGrid, (cell + vec2(-0.5, 0.5)) / gridDims.xy).r);
-      if (on.y > 0.) e = max(e, max(here, texture2D(tGrid, (cell + vec2(0.5, -0.5)) / gridDims.xy).r));
-      bool major = (on.x > 0. && mod(cell.x, ${MAJOR}.) < 0.5) || (on.y > 0. && mod(cell.y, ${MAJOR}.) < 0.5);
-      col = toLin(mix(groundS, gridInk, (major ? gridA.y : gridA.x) * (gridDim + (1. - gridDim) * e)));
+    vec2 cell = floor(px / gridDims.zw), local = fract(px / gridDims.zw);
+    vec2 m = texture2D(tGrid, (cell + 0.5) / gridDims.xy).rg;
+    float h = fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.545);
+    float g = 0., a = gridA.x;
+    vec3 tint = gridInk;
+    if (m.r > 0.02) {
+      float k = floor(clamp(m.r * 5. + (h - 0.5) * 0.8, 0., 4.99));
+      g = k < 0.5 ? 0. : k < 1.5 ? 1. : k < 2.5 ? 2. + floor(m.g * 4. + 0.5) : k + 3.;
+      a = mix(gridA.x, gridA.y, m.r);
+      float pick = fract(h * 91.7);
+      if (m.r > 0.3 && pick < 0.05) for (int i = 0; i < 5; i++) if (float(i) == floor(pick * 100.)) tint = pow(hue[i], vec3(1. / 2.2));
     }
+    float cov = texture2D(tGlyph, vec2((g + local.x) / ${GLYPHS.length}., local.y)).r;
+    col = toLin(mix(groundS, tint, a * cov));
   }
   // The palettes (src/palettes.js): the drawing in one template's two colours. Brightness sets each pixel's place between
   // its dark colour (duoBg) and its light one (duoInk), in sRGB as the page mixes: on the dark theme the ground
@@ -198,7 +206,7 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     ink: { value: new THREE.Color() }, hue: { value: [0, 1, 2, 3, 4].map(() => new THREE.Color()) }, bg: { value: new THREE.Color() }, inkMix: { value: 0.85 },
     cNear: { value: 0.1 }, cFar: { value: 100 }, fogNear: { value: 1 }, fogFar: { value: 2 }, vignette: { value: 0.5 }, warm: { value: new THREE.Vector2() }, hueRef: { value: [0, 0, 0, 0, 0] },
     hueDir: { value: [0, 1, 2, 3, 4].map(() => new THREE.Vector3(1, 0, 0)) },
-    tGrid: { value: null }, gridDims: { value: new THREE.Vector4(1, 1, CELL, 1) }, gridH: { value: 1 }, gridDim: { value: DIM },
+    tGrid: { value: null }, gridDims: { value: new THREE.Vector4(1, 1, CW, CH) }, gridH: { value: 1 }, dpr: { value: 1 }, tGlyph: { value: null },
     bgS: { value: new THREE.Vector3() }, gridInk: { value: new THREE.Vector3() }, gridA: { value: new THREE.Vector2() }, viewTop: { value: 0 },
     duoBg: { value: new THREE.Vector3() }, duoInk: { value: new THREE.Vector3() }, duoMix: { value: 0 },
   };
@@ -322,7 +330,8 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     U.texel.value.set(Math.max(1, dpr * 0.8) / bw, Math.max(1, dpr * 0.8) / bh);
     const bar = document.querySelector('.bar')?.getBoundingClientRect();
     barBottom = bar ? bar.bottom : 64;
-    U.gridH.value = bh; U.gridDims.value.w = dpr;
+    U.gridH.value = bh; U.dpr.value = dpr;
+    glyphs();
   }
 
   // --- the camera rig, from keyframes ---
@@ -622,21 +631,39 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     scalebar.querySelector('.sb-fov').textContent = b;
   }
 
-  // --- the drafting grid's brush map (src/grid.js), handed to the edge pass as a texture ---
-  let gridTex = null, gridData = new Uint8Array(1), gridSeen = -1;
+  // --- the brush (src/brush.js): its map of ink and stroke direction, handed to the edge pass as a texture ---
+  let gridTex = null, gridData = new Uint8Array(2), gridSeen = -1;
   function syncGrid() {
     if (brush.version === gridSeen) return;
     gridSeen = brush.version;
     if (gridTex?.image.width !== brush.cols || gridTex?.image.height !== brush.rows) {
       gridTex?.dispose();
-      gridData = new Uint8Array(brush.cols * brush.rows);
-      gridTex = new THREE.DataTexture(gridData, brush.cols, brush.rows, THREE.RedFormat, THREE.UnsignedByteType);
+      gridData = new Uint8Array(brush.cols * brush.rows * 2);
+      gridTex = new THREE.DataTexture(gridData, brush.cols, brush.rows, THREE.RGFormat, THREE.UnsignedByteType);
       U.tGrid.value = gridTex;
-      U.gridDims.value.set(brush.cols, brush.rows, CELL, dpr);
+      U.gridDims.value.set(brush.cols, brush.rows, CW, CH);
     }
-    for (let i = 0; i < gridData.length; i++) gridData[i] = brush.v[i] * 255;
+    for (let i = 0; i < brush.v.length; i++) { gridData[2 * i] = brush.v[i] * 255; gridData[2 * i + 1] = brush.dir[i] * 64; }
     gridTex.needsUpdate = true;
   }
+  // The glyphs, one cell each in a row, white on clear at the screen's resolution, in the page's monospace
+  // (redrawn once it has loaded, and whenever the pixel ratio changes).
+  let glyphTex = null, glyphDpr = 0;
+  function glyphs(force) {
+    if (dpr === glyphDpr && !force) return;
+    glyphDpr = dpr;
+    const w = Math.round(CW * dpr), h = Math.round(CH * dpr), c = document.createElement('canvas');
+    c.width = w * GLYPHS.length; c.height = h;
+    const g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = `500 ${Math.round(14 * dpr)}px "JetBrains Mono Variable", ui-monospace, monospace`;
+    GLYPHS.forEach((ch, i) => g.fillText(ch, (i + 0.5) * w, h * 0.54));
+    glyphTex?.dispose();
+    glyphTex = new THREE.CanvasTexture(c);
+    glyphTex.flipY = false; glyphTex.generateMipmaps = false; glyphTex.minFilter = THREE.LinearFilter;
+    U.tGlyph.value = glyphTex;
+  }
+  document.fonts?.load('500 14px "JetBrains Mono Variable"').then(() => glyphs(true));
 
   // --- pointer: parallax and a hand on the switch ---
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
