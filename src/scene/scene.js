@@ -54,7 +54,7 @@ const KEYS = {
   ...hold('die', { in: 'D', t: [0, 1.4, 0], dir: [0.4, 0.7, 0.6], d: 92, f: [0.5, 0.5], pf: [0.5, 0.5], pz: 1.55, p: { ...BASE, pkg: 0, board: 0, power: 0 } }),
   packageA: { in: 'D', t: [0, 6, 0], dir: [0.5, 0.5, 0.71], d: 195, f: [0.5, 0.52], pf: [0.5, 0.5], pz: 2.15, p: { ...BASE, expl: 1, board: 0, power: 0 } },
   packageB: { in: 'D', t: [0, 1, 0], dir: [0.6, 0.44, 0.67], d: 190, f: [0.5, 0.52], pf: [0.5, 0.5], pz: 2.15, p: { ...BASE, expl: 0, board: 0, power: 0 } },
-  ...hold('board', { in: 'D', t: [16, -2, 0], dir: [0.42, 0.6, 0.68], d: 330, f: [0.5, 0.5], pf: [0.5, 0.5], pz: 2.1, p: { ...BASE, power: 0 } }),
+  ...hold('board', { in: 'D', t: [16, -2, 0], dir: [0.42, 0.6, 0.68], d: 330, f: [0.68, 0.5], pf: [0.5, 0.36], pz: 2.1, p: { ...BASE, power: 0 } }),
   // The GPU comes round to look down on its die, and powers on.
   bootA: { in: 'D', t: [0, 1.4, 0], dir: [0.12, 0.9, 0.42], d: 132, f: [0.5, 0.4], pf: [0.5, 0.4], pz: 2.5, p: { ...BASE, board: 0, sub: 0 },
     win: { power: [0.8, 0.98, 'inOut'], cam: [0.3, 1, 'inOut'] } },

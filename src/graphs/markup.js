@@ -2,14 +2,14 @@
 // functions, in its final state, so the page reads without JavaScript; motion.js redraws it at its real size
 // and scrubs its moving parts with q. The id and side are the contract with story.js and the scene's camera
 // keys.
-import { seg, clamp01, memWeightsT, memSkills, MEM_BOX, SKILLS } from './data.js';
+import { seg, clamp01, memWeightsT, memSkills, MEM_BOX, SKILLS, RESERVE } from './data.js';
 
 export const GRAPHS = [
   {
     id: 'memory', side: 'right', title: 'What fits in 80 GB',
-    text: 'Mine holds mostly Python and cost optimization, with a little MMA and hiking.',
+    text: 'As inmind’s advisor I size the GPUs; profiling clients’ stacks with Nsight and TensorRT cut their hosting bill by 37%. Mine holds mostly Python and FastAPI, with hiking and MMA in reserve.',
     legend: true,
-    label: 'Kevin’s 80 GB, drawn as a GPU’s memory: 16 GB of weights, loaded at birth, then a cache shared by Python 20%, FastAPI 10%, tokenomics 10%, cost optimization 20%, GPU sizing 10%, AI fundamentals 10%, MMA 5% and hiking 5%, with 10% in reserve.',
+    get label() { return `Kevin’s 80 GB, drawn as a GPU’s memory: 16 GB of weights, loaded at birth, then a cache shared by ${SKILLS.map((s) => `${s.name} ${s.pct}%`).join(', ')}, with ${RESERVE.pct}% in reserve for ${RESERVE.holds}.`; },
   },
 ];
 
@@ -48,13 +48,13 @@ function memory(w, h) {
     // The big figure counts the weights in, then the cache as it fills; it dips out as it changes meaning.
     const a = clamp01(Math.abs(q - 0.28) / 0.025), cache = q >= 0.28;
     s.push(T(0, 44, cache ? `${Math.round((n * 5) / BLOCK)}%` : `${Math.round(MEM_BOX.weights * wt)} GB`, 'g-num', a));
-    s.push(T(0, 72, cache ? (n >= all ? 'of the KV cache in use, 10% in reserve' : `of the KV cache, loading ${now.name}`) : 'of weights', 'g-cap', a));
+    s.push(T(0, 72, cache ? (n >= all ? `of the KV cache in use, ${RESERVE.pct}% in reserve` : `of the KV cache, loading ${now.name}`) : 'of weights', 'g-cap', a));
     return s.join('');
   };
   return { frame, live };
 }
 // The memory chart's key: each skill's colour and share, then the reserve.
-const legend = () => `<ul class="g-legend">${SKILLS.map((s) => `<li><i class="${s.c}"></i>${esc(s.name)} ${s.pct}%</li>`).join('')}<li><i class="g-res"></i>Reserve 10%</li></ul>`;
+const legend = () => `<ul class="g-legend">${SKILLS.map((s) => `<li><i class="${s.c}"></i>${esc(s.name)} ${s.pct}%</li>`).join('')}<li><i class="g-res"></i>Reserve ${RESERVE.pct}% (${esc(RESERVE.holds)})</li></ul>`;
 
 export const chart = (id, w, h) => ({ memory })[id](w, h);
 const chartSVG = (g) => { const h = H, c = chart(g.id, W, h); return `<svg viewBox="0 0 ${W} ${h}" preserveAspectRatio="xMinYMid meet" role="img" aria-label="${esc(g.label)}">${c.frame}<g>${c.live(1)}</g></svg>`; };

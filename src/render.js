@@ -51,6 +51,7 @@ export const story = () => `
     <svg class="leaders" aria-hidden="true"></svg>
     <div class="tags" aria-hidden="true"></div>
     <div class="scalebar" aria-hidden="true"><i></i><span class="sb-len">100 nm</span><span class="sb-fov">Field of view 120 nm</span></div>
+    <p class="scroll-hint" aria-hidden="true"><span>Scroll</span></p>
     <div class="panels">
       ${helloPanel()}
       ${beats.map(beatPanel).join('')}

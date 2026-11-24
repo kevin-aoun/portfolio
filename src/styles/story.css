@@ -47,6 +47,15 @@
 .hello-lead { margin-top: 36px; max-width: 40ch; font-size: var(--step-lead); line-height: 1.4; }
 .hello-actions { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
 
+/* On the opening screen, a small "Scroll" that breathes until the visitor scrolls, then fades for good. */
+.scroll-hint { position: absolute; left: 0; right: 0; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); margin: 0; text-align: center; font-size: var(--step-small); letter-spacing: 0.02em; color: var(--muted); pointer-events: none; transition: opacity 400ms ease-out; }
+.scroll-hint span { display: inline-block; animation: hint-breathe 3s ease-in-out infinite; }
+.scroll-hint.gone { opacity: 0; }
+.scroll-hint.gone span { animation-play-state: paused; }
+@keyframes hint-breathe { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .scroll-hint span { animation: none; } }
+html:not(.js) .scroll-hint { display: none; }
+
 /* Without JavaScript the stage is just the page: panels stack and read in order. */
 html:not(.js) .stage { position: relative; height: auto; overflow: visible; }
 html:not(.js) .track, html:not(.js) .gl, html:not(.js) .tags, html:not(.js) .leaders, html:not(.js) .scalebar { display: none; }

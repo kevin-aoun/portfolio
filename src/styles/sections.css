@@ -112,7 +112,7 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
 /* The last section sits on its own field, one tone up: the page's one change of ground. */
 .sec-contact { background: var(--band); padding-top: calc(var(--gap-section) * 0.6); padding-bottom: calc(var(--gap-section) * 0.6); transition: background-color 400ms; }
 .sec-contact h2 { margin-bottom: 28px; }
-.sec .ct-lead { font-size: var(--step-lead); line-height: 1.4; max-width: 44ch; margin-bottom: clamp(36px, 4vw, 56px); }
+.sec .ct-lead, .sec .sec-lead { font-size: var(--step-lead); line-height: 1.4; max-width: 44ch; margin-bottom: clamp(36px, 4vw, 56px); }
 .ct { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); column-gap: clamp(40px, 6vw, 112px); align-items: start; }
 .composer { display: grid; gap: 12px; }
 .composer label { font-weight: 500; }
@@ -144,8 +144,7 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
 /* ---- The footer: the name across the width, and one line. */
 /* The grove grows right up to the contact band; its faded top rows are the only rest before the footer. */
 .foot { padding: clamp(16px, 2vw, 28px) var(--margin) clamp(28px, 3vw, 44px); }
-.foot-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 24px; margin-top: 28px; font-size: var(--step-small); color: var(--muted); }
-.foot-line span { margin-right: auto; }
+.foot-line { margin-top: 28px; font-size: var(--step-small); color: var(--muted); }
 
 
 /* Below 1100px the trace takes the full width and each organisation's name its own line above its row,

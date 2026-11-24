@@ -91,20 +91,6 @@ export const certificationsSection = () => `
 // classes in sections.css (fa, fm, ff, ft fill in the project's token colour, muted, faint or one tone up; sa, sm, sf stroke).
 const r1 = (v) => Math.round(v * 10) / 10;
 const ART = {
-  // A conversation as a waveform: the AI's short questions (in colour, rising at the end) and your longer answers.
-  Gadfly() {
-    let x = 28.5, out = '';
-    for (const [ai, n] of [[1, 8], [0, 18], [1, 6], [0, 22], [1, 5], [0, 7]]) {
-      for (let k = 0; k < n; k++, x += 5.5) {
-        const t = (k + 0.5) / n;
-        const env = ai ? 0.35 + 0.65 * t : Math.sin(Math.PI * t);
-        const h = Math.max(6, (ai ? 130 : 180) * env * (0.45 + 0.55 * Math.abs(Math.sin(x * 0.37) * Math.cos(x * 0.11))));
-        out += `<rect class="${ai ? 'fa' : 'fm'}" x="${r1(x)}" y="${r1(150 - h / 2)}" width="3" height="${r1(h)}" rx="1.5"/>`;
-      }
-      x += 12;
-    }
-    return out;
-  },
   // Two years of a household's money: monthly spending under net worth, the stepped line, all in one file.
   LocalFi() {
     let out = '', d = '', nw = 196;
@@ -160,6 +146,7 @@ const where = (href) => (href.includes('github.com') ? 'on GitHub' : href.includ
 export const projectsSection = () => `
 <section class="sec sec-projects" id="projects" aria-labelledby="projects-title">
   <h2 id="projects-title">Projects</h2>
+  <p class="sec-lead">Off the clock: quantum research with BMW, a brain-computer interface, and tools I build for myself.</p>
   <div class="pj">
     <ul class="pj-list hues">${projects.map((p, i) => `
       <li class="pj-row${i ? '' : ' on'}">
@@ -231,9 +218,8 @@ export const contactSection = () => `
 </section>`;
 
 // The footer: a grove of Kevin's tree mark (src/footer/field.js), its one coloured tree right over the ©.
-const footLinks = ['GitHub', 'LinkedIn'].map((l) => person.links.find((x) => x.label === l)).filter(Boolean);
 export const footer = () => `
 <footer class="foot">
   ${fieldMarkup()}
-  <p class="foot-line hues"><span>© ${today.getFullYear()} ${esc(person.name)}, ${esc(person.role)} in Beirut</span>${footLinks.map((l) => out(l.href, l.label)).join('')}${out(`mailto:${person.email}`, person.email)}</p>
+  <p class="foot-line hues"><span>© ${today.getFullYear()} ${esc(person.name)}, ${esc(person.role)} in Beirut</span></p>
 </footer>`;

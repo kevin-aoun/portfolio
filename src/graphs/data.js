@@ -22,13 +22,13 @@ const ease = (t) => 1 - (1 - t) ** 3;
 const lerp = (a, b, t) => a + (b - a) * t;
 
 // Kevin's own 80 GB: the weights (preloaded at birth) load, the reserve comes off the top, then his skills
-// fill the cache in his shares of it; the last 10% stays in reserve. Colours: the tokenizer's five, in order
-// and round again, the way it colours consecutive tokens.
+// fill the cache in his shares of it; what they leave is the reserve, which holds hiking and MMA. Colours:
+// the tokenizer's five, in order and round again, the way it colours consecutive tokens.
 export const MEM_BOX = { total: 80, weights: 16 };
 export const SKILLS = [
-  { name: 'Python', pct: 20 }, { name: 'FastAPI', pct: 10 }, { name: 'Tokenomics', pct: 10 }, { name: 'Cost optimization', pct: 20 },
-  { name: 'GPU sizing', pct: 10 }, { name: 'AI fundamentals', pct: 10 }, { name: 'MMA', pct: 5 }, { name: 'Hiking', pct: 5 },
+  { name: 'Python & FastAPI', pct: 20 }, { name: 'Tokenomics', pct: 10 }, { name: 'GPU sizing & optimization', pct: 10 }, { name: 'AI fundamentals', pct: 10 },
 ].map((s, i) => ({ ...s, c: `tk${i % 5}` }));
+export const RESERVE = { pct: 100 - SKILLS.reduce((a, s) => a + s.pct, 0), holds: 'hiking, MMA' };
 export const memWeightsT = (q) => ease(seg(q, 0.06, 0.22));
 export const memSkills = (q) => seg(q, 0.3, 0.84); // share of the skills' tiles in place
 
@@ -50,7 +50,7 @@ export function stageState(id, q) {
   // The die works harder as the cache fills: the pace of a BF16 batch as large as the share filled.
   const sk = memSkills(q), wt = memWeightsT(q), idle = sk === 0, r = along(BMAX * sk), { total, weights } = MEM_BOX;
   return { util: idle ? FLOOR : util(r.gpu * PEAK_S), hbm: idle ? 0.2 : 1, flow: idle ? 0 : Math.min(40, r.user / 8), packet: 1,
-    memFill: (weights * wt + (total - weights) * 0.9 * sk) / total, memWeights: (weights * wt) / total, prefill: 1 };
+    memFill: (weights * wt + ((total - weights) * (100 - RESERVE.pct) / 100) * sk) / total, memWeights: (weights * wt) / total, prefill: 1 };
 }
 
 // Self-check: the memory wall reproduces the verified B_max (vLLM's 0.92 of 85.03 GB, less weights and 2 GB),

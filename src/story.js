@@ -18,9 +18,11 @@ function schedule() {
   const s = [{ kind: 'hold', key: 'hero', len: 70, single: true }];
   // The name, with the transistor beside it.
   s.push({ kind: 'move', len: 60 }, { kind: 'hold', key: 'hello', len: 150, panel: '#hello', single: true, hello: true });
-  // Four make a decision; from there the camera keeps pulling out while the chip builds itself, without words.
+  // Four make a decision; from there the camera keeps pulling out while the chip builds itself, without words,
+  // until the finished board, where the build panel comes up.
   s.push({ kind: 'move', len: 190 }, { kind: 'hold', key: 'logic', len: 96, panel: '#beat-logic', callouts: 'logic' });
-  for (const [key, len] of [['core', 24], ['die', 24], ['package', 60], ['board', 24]]) s.push({ kind: 'move', len: 64, flow: true }, { kind: 'hold', key, len });
+  for (const [key, len] of [['core', 24], ['die', 24], ['package', 60]]) s.push({ kind: 'move', len: 64, flow: true }, { kind: 'hold', key, len });
+  s.push({ kind: 'move', len: 64, flow: true }, { kind: 'hold', key: 'board', len: 96, panel: '#beat-build' });
   // "Now it can talk": the chip powers on under one long line read right to left.
   s.push({ kind: 'move', len: 96 }, { kind: 'hold', key: 'boot', len: 320, panel: '#beat-boot', marquee: true });
   // The robot assembles around the chip without words (arms, torso, legs, then the chip into its head); its
@@ -38,6 +40,11 @@ export function initStory(stage, { reduced }) {
   const exact = reduced || new URLSearchParams(location.search).has('shot');
   const S = stage?.S ?? { k: 0, tokens: 0, prefill: 0, util: 0, hbm: 0, flow: 0, packet: 1, memFill: 0, memWeights: 0 };
   const graphs = initGraphs({ reduced });
+  // The scroll hint goes for good once the visitor scrolls, or arrives mid-page.
+  const hint = story.querySelector('.scroll-hint');
+  const away = () => { if (scrollY > 8) { hint.classList.add('gone'); removeEventListener('scroll', away); } };
+  addEventListener('scroll', away, { passive: true });
+  away();
 
   // --- the schedule: camera marks, panel windows ---
   const segs = schedule();
