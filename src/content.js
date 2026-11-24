@@ -21,15 +21,15 @@ export const person = {
 // the marquee as it powers on); the body and the memory chart carry the rest. `side` is where the text sits;
 // the subject takes the other side.
 export const beats = [
-  { id: 'logic', side: 'right', title: 'Four make a decision', text: 'Wire four transistors together and they make a decision. My work starts with one too: at Gaya I lead discovery with insurance carriers and brokers, alongside sales, and turn a messy workflow into a plan we can ship.' },
+  { id: 'logic', side: 'right', title: 'Four make a decision', text: 'Four transistors are enough to make a decision. Most of my projects start with one too. At Gaya, I work with insurance carriers and brokers, next to our sales team, to figure out what is worth building first.' },
   // Said over the finished board, once the chip has built itself.
-  { id: 'build', side: 'left', title: 'Then build it, layer by layer', text: 'From prototype to production. At Gaya, the harness, context and guardrails for browser and desktop agents that submit insurance quotes: manual handling down 3×. At BMW, a local LLM pipeline that now answers 25,000+ queries a day.' },
+  { id: 'build', side: 'left', title: 'Then I build it', text: 'I like taking things from a rough prototype all the way to production. At Gaya, that means browser and desktop agents that handle insurance quotes, so people spend a lot less time doing it by hand. Before that, at BMW, I built a local LLM pipeline that ended up becoming a flagship project.' },
   // One line, large, read right to left as it scrolls past.
-  { id: 'boot', marquee: true, title: 'Now it can talk.', text: 'The voice AI and RAG I shipped at inmind answer about 500 queries a day.' },
+  { id: 'boot', marquee: true, title: 'Now it can talk.', text: 'At inmind, I build voice AI that people talk to every day.' },
 ];
 
 // The chip goes into a robot's head (src/scene/robot.js); this is said as it lights up.
-export const body = { id: 'body', side: 'left', title: 'Give it a body', text: 'Then it lives with people, and has to keep working for them. My eval pipelines catch any slip in tool-call accuracy or response time, my eval dashboard is now the whole team’s, and I teach engineers and non-engineers alike how to work with AI.' };
+export const body = { id: 'body', side: 'left', title: 'Give it a body', text: 'Once it is out in the world, it has to keep working for the people using it. That is why I care a lot about evals (I built the dashboard my team uses for them), and why I enjoy teaching people, technical or not, how to work with AI.' };
 
 // Said under every Token IDs view: the IDs are GPT-4o's, not those of the model in the story.
 export const idNote = 'IDs from OpenAI’s o200k_base (GPT-4o).';
@@ -39,7 +39,7 @@ export const idNote = 'IDs from OpenAI’s o200k_base (GPT-4o).';
 export const pricing = { input: 3 };
 
 export const hello = {
-  lead: 'Cards on the table: I’m obsessed with building, and with watching a product grow and people love it. So I work where sales, engineering and customer success meet.',
+  lead: 'Cards on the table: I’m obsessed with building, and with seeing a product grow and get loved by people. So, I’m deployed at the intersection of Sales, Engineering / Product, and Customer Success.',
 };
 
 // Roles, newest first. `from` and `to` are year-month (to: null = still there); the page writes the
@@ -70,10 +70,10 @@ export const certifications = [
 // Handpicked, strongest first. `href` is optional (private work has none). Each one gets its own drawing
 // in src/sections/render.js (ART, by name); one without a drawing gets a plain card.
 export const projects = [
-  { name: 'Live avatar', kind: 'Voice AI', lang: 'Python', text: 'A talking avatar that holds a live conversation and calls tools as it goes, on a voice pipeline built with LiveKit and Pipecat. Built at inmind; private.' },
-  { name: 'HELIN', kind: 'Brain-computer interface', lang: 'Python', href: 'https://github.com/kevin-aoun/helin-eeg', text: 'Humanity’s Last Interface: one pre-trained EEG model with small adapters swapped in per task, for motor imagery, epilepsy spike detection and fear detection in games.' },
-  { name: 'Quantum state preparation', kind: 'Research, with BMW Group', lang: 'Python', href: 'https://arxiv.org/abs/2605.31006', text: 'A neural network predicts the circuit that loads data into a quantum state in one step, instead of an optimisation per input: up to 0.992 fidelity, over 5,000 times faster.' },
-  { name: 'LocalFi', kind: 'Local-first app', lang: 'TypeScript', href: 'https://github.com/kevin-aoun/LocalFi', text: 'Personal finance in one SQLite file that never leaves your machine: accounts, budgets, investments, net worth.' },
+  { name: 'Live avatar', kind: 'Voice AI', lang: 'Python', text: 'A talking avatar you can have a live conversation with, and it can call tools while you talk. Built with LiveKit and Pipecat at inmind (private).' },
+  { name: 'HELIN', kind: 'Brain-computer interface', lang: 'Python', href: 'https://github.com/kevin-aoun/helin-eeg', text: 'Humanity’s Last Interface. One pre-trained EEG model with a small adapter for each task, from motor imagery to epilepsy detection and gaming.' },
+  { name: 'Quantum state preparation', kind: 'Research, with BMW Group', lang: 'Python', href: 'https://arxiv.org/abs/2605.31006', text: 'A neural network that predicts the circuit for loading data into a quantum state in one go, instead of optimising a new one for every input. Much faster, and the fidelity stays high.' },
+  { name: 'LocalFi', kind: 'Local-first app', lang: 'TypeScript', href: 'https://github.com/kevin-aoun/LocalFi', text: 'Personal finance that lives in one SQLite file on your own machine.' },
 ];
 
 export const writing = [

@@ -146,7 +146,7 @@ const where = (href) => (href.includes('github.com') ? 'on GitHub' : href.includ
 export const projectsSection = () => `
 <section class="sec sec-projects" id="projects" aria-labelledby="projects-title">
   <h2 id="projects-title">Projects</h2>
-  <p class="sec-lead">Off the clock: quantum research with BMW, a brain-computer interface, and tools I build for myself.</p>
+  <p class="sec-lead">A mix of research and things I built because I wanted them to exist.</p>
   <div class="pj">
     <ul class="pj-list hues">${projects.map((p, i) => `
       <li class="pj-row${i ? '' : ' on'}">

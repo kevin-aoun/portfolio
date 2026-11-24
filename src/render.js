@@ -13,6 +13,7 @@ const sun = '<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentCol
 const moon = '<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 14.6A8.4 8.4 0 0 1 9.4 3.8a8.4 8.4 0 1 0 10.8 10.8Z"/></svg>';
 
 export const header = () => `
+<p class="notice" role="note">Still under construction, please watch your head</p>
 <header class="bar">
   <a class="wordmark" href="#top" aria-label="${person.name}, back to the top"><svg class="mark" viewBox="264.6 78.6 793 983.9" aria-hidden="true"><path d="${MARK_PATH}"/></svg><span class="full">${person.name}</span></a>
   <nav aria-label="Sections"><a href="#projects">Projects</a><a href="#writing">Writing</a><a href="#work">Work</a><a href="#contact">Contact</a></nav>

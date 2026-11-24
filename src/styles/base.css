@@ -61,7 +61,8 @@
   --name-em: 9.3;
   --margin: clamp(16px, 3.2vw, 56px);
   --gap-section: clamp(120px, 14vw, 220px);
-  --bar-top: 16px;
+  --notice-h: 28px; /* the under-construction strip above the bar */
+  --bar-top: calc(16px + var(--notice-h));
   --bar-h: 48px;
   --radius: 999px;
   --radius-panel: 14px;
@@ -70,7 +71,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 /* Proximity snapping on each section's heading (sections.css): a scroll that ends near one settles on it. */
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 88px; scroll-snap-type: y proximity; background-color: var(--bg); transition: background-color 400ms; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: calc(var(--bar-top) + var(--bar-h) + 24px); scroll-snap-type: y proximity; background-color: var(--bg); transition: background-color 400ms; }
 body { margin: 0; color: var(--ink); font-family: var(--text-face); font-size: var(--step-body); line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: clip; transition: color 400ms; }
 img, svg, canvas { display: block; max-width: 100%; }
 a { color: inherit; text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; }
@@ -84,6 +85,8 @@ button { font: inherit; color: inherit; }
 .skip:focus { top: 12px; }
 
 /* The bar: a small pane of glass floating over the stage. */
+/* The site is still being built: a thin strip in the bar's glass says so, above it. */
+.notice { position: fixed; z-index: 41; top: 0; left: 0; right: 0; height: var(--notice-h); margin: 0; display: flex; align-items: center; justify-content: center; padding: 0 16px; font-size: 0.8125rem; color: var(--muted); background: var(--glass); border-bottom: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); white-space: nowrap; transition: background-color 400ms, border-color 400ms; }
 .bar { position: fixed; z-index: 40; top: var(--bar-top); left: 50%; transform: translateX(-50%); height: var(--bar-h); display: flex; align-items: center; gap: 2px; padding: 0 4px 0 16px; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); font-size: var(--step-small); white-space: nowrap; transition: background-color 400ms, border-color 400ms; }
 /* The mark (Kevin's tree, in ink) leads the name: 20px tall in the 48px bar, so it sits 14px from top and bottom
    and 16px from the bar's rounded end; 12px to the name. The viewBox is the mark's own bounds, so it centres

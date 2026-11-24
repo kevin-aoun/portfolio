@@ -68,7 +68,7 @@ const KEYS = {
   ...hold('legs', { in: 'D', t: [0, -650, 0], dir: [0.42, 0.14, 0.9], d: 2800, f: [0.5, 0.5], pf: [0.5, 0.52], pz: 1.32, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 1, legs: 0 }, pB: { legs: 1 } }),
   ...hold('brain', { in: 'D', t: [0, 85, -40], dir: [0.4, 0.42, 0.82], d: 700, f: [0.5, 0.5], pz: 2.1, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 1, legs: 1, head: 0 }, pB: { head: 1 } }, 0.1),
   // The light-up fires most of the way out, with the whole body coming into view.
-  ...hold('body', { in: 'D', t: [0, -575, 0], dir: [0.3, 0.1, 0.95], d: 2650, f: [0.68, 0.5], pf: [0.5, 0.34], pz: 1.9, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 1, legs: 1, head: 1, glow: 1 }, win: { glow: [0.75, 0.8] } }, 0.16),
+  ...hold('body', { in: 'D', t: [0, -575, 0], dir: [0.3, 0.1, 0.95], d: 2650, f: [0.68, 0.55], pf: [0.5, 0.375], pz: 1.9, p: { ...ROB, robIn: 1, chipUp: 1, arm: 1, torso: 1, legs: 1, head: 1, glow: 1 }, win: { glow: [0.75, 0.8] } }, 0.16),
   // Into the chip in the robot's head, for the memory chart: the head opens first, the camera comes round to
   // look down into it (via), and the robot leaves only at the very end of the move, once the chip fills the
   // view. B drifts on from A without the curve.

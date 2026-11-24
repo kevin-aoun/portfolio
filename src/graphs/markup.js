@@ -7,7 +7,7 @@ import { seg, clamp01, memWeightsT, memSkills, MEM_BOX, SKILLS, RESERVE } from '
 export const GRAPHS = [
   {
     id: 'memory', side: 'right', title: 'What fits in 80 GB',
-    text: 'As inmind’s advisor I size the GPUs; profiling clients’ stacks with Nsight and TensorRT cut their hosting bill by 37%. Mine holds mostly Python and FastAPI, with hiking and MMA in reserve.',
+    text: 'I also advise inmind on which GPUs to run, and how to run them for less. Mine holds mostly Python and FastAPI, with hiking and MMA in reserve.',
     legend: true,
     get label() { return `Kevin’s 80 GB, drawn as a GPU’s memory: 16 GB of weights, loaded at birth, then a cache shared by ${SKILLS.map((s) => `${s.name} ${s.pct}%`).join(', ')}, with ${RESERVE.pct}% in reserve for ${RESERVE.holds}.`; },
   },
