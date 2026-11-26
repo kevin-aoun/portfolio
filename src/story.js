@@ -21,8 +21,9 @@ function schedule() {
   // Four make a decision; from there the camera keeps pulling out while the chip builds itself, without words,
   // until the finished board, where the build panel comes up.
   s.push({ kind: 'move', len: 190 }, { kind: 'hold', key: 'logic', len: 96, panel: '#beat-logic', callouts: 'logic' });
-  for (const [key, len] of [['core', 24], ['die', 24], ['package', 60]]) s.push({ kind: 'move', len: 64, flow: true }, { kind: 'hold', key, len });
-  s.push({ kind: 'move', len: 64, flow: true }, { kind: 'hold', key: 'board', len: 96, panel: '#beat-build' });
+  // The build is one quick pull-out: barely a beat at the core and the die, a short one while the package closes.
+  for (const [key, len] of [['core', 6], ['die', 6], ['package', 30]]) s.push({ kind: 'move', len: 44, flow: true }, { kind: 'hold', key, len });
+  s.push({ kind: 'move', len: 44, flow: true }, { kind: 'hold', key: 'board', len: 96, panel: '#beat-build' });
   // "Now it can talk": the chip powers on under one long line read right to left.
   s.push({ kind: 'move', len: 96 }, { kind: 'hold', key: 'boot', len: 320, panel: '#beat-boot', marquee: true });
   // The robot assembles around the chip without words (arms, torso, legs, then the chip into its head); its
@@ -60,10 +61,8 @@ export function initStory(stage, { reduced }) {
     u += g.len;
   });
   const total = u;
-  if (new URLSearchParams(location.search).has('debug')) window.__story = { segs, total }; // for test pages: where each beat sits, in svh
   // Moves sit between a hold's end mark and the next hold's start mark; ease those, keep holds linear.
   for (let i = 0; i < marks.length - 1; i++) marks[i].move = !marks[i].flow && marks[i + 1].u > marks[i].u && marks[i].k !== marks[i + 1].k && keys[marks[i].k].replace(/[AB]$/, '') !== keys[marks[i + 1].k].replace(/[AB]$/, '');
-  track.style.setProperty('--track', `${total + 100}svh`);
   stage?.setKeys(keys);
 
   function keyAt(x) {
@@ -114,6 +113,35 @@ export function initStory(stage, { reduced }) {
     const outAt = g.panelOut ? g.h0 + g.panelOut * (g.h1 - g.h0) : g.h1;
     panels.push({ el, tl, g, t: -1, live: false, in0: g.h0 - 22, in1: g.h0 + (g.final || g.hello ? 70 : 20), out0: outAt - 22, out1: outAt + 10 });
   }
+  // Around each panel's words the story slows down: a short band as they settle and another as they start to
+  // leave, where the scroll moves the story at a third of its pace, so a scroll that overshoots has room to come
+  // back before the words are gone. Bands are in the story's svh; the track is the story plus what they add.
+  const RATE = 1 / 3;
+  const slow = panels.filter((pn) => !pn.g.marquee).flatMap((pn) => [[pn.in1 - 10, pn.in1 + 8], ...(pn.g.final ? [] : [[pn.out0 - 8, pn.out0 + 10]])])
+    .sort((a, b) => a[0] - b[0]).reduce((m, b) => { const l = m[m.length - 1]; if (l && b[0] <= l[1]) l[1] = Math.max(l[1], b[1]); else m.push([...b]); return m; }, []);
+  const toScroll = (x) => x + slow.reduce((a, [b0, b1]) => a + (Math.min(Math.max(x, b0), b1) - b0) * (1 / RATE - 1), 0);
+  const fromScroll = (y) => {
+    let off = 0;
+    for (const [b0, b1] of slow) {
+      if (y < b0 + off) break;
+      if (y < b0 + off + (b1 - b0) / RATE) return b0 + (y - b0 - off) * RATE;
+      off += (b1 - b0) * (1 / RATE - 1);
+    }
+    return y - off;
+  };
+  const length = toScroll(total);
+  track.style.setProperty('--track', `${length + 100}svh`);
+  // Between two beats in different palettes the next one wipes up the screen over one screen of scroll, so its
+  // edge keeps pace with the page, as the next block of a long page would; it starts once the words have gone.
+  const beats = panels.filter((pn) => palettes.story[pn.g.key]);
+  const wipes = beats.slice(1).map((b, i) => {
+    const a = beats[i], w0 = a.out1;
+    return { w0, w1: Math.min(w0 + 100, b.in0), from: palettes.story[a.g.key], to: palettes.story[b.g.key] };
+  }).filter((w) => w.from !== w.to);
+  if (new URLSearchParams(location.search).has('debug')) {
+    window.__story = { segs, total, length, toScroll }; // for test pages: each beat's place, in story svh; toScroll gives the scroll's
+    for (let x = 0; x <= total; x += 0.5) console.assert(Math.abs(fromScroll(toScroll(x)) - x) < 1e-6, 'slow bands: scroll and story disagree at', x);
+  }
   const seek = (pn, t) => { if (t !== pn.t) { pn.t = t; pn.tl.seek(t); } };
   // Where each card's top sits, so a phone on its side can frame the subject in the space above it.
   const bands = () => stage?.setBands(Object.fromEntries(panels.map((pn) => [pn.g.key, pn.el.offsetTop])));
@@ -122,7 +150,7 @@ export function initStory(stage, { reduced }) {
   panels.forEach((pn) => pn.el.addEventListener('focusin', () => {
     if (pn.live) return;
     const top = story.getBoundingClientRect().top + scrollY;
-    scrollTo({ top: top + ((pn.g.h0 + pn.g.h1) / 2 / 100) * innerHeight, behavior: 'instant' });
+    scrollTo({ top: top + (toScroll((pn.g.h0 + pn.g.h1) / 2) / 100) * innerHeight, behavior: 'instant' });
   }));
 
   // --- the name: each token's block sweeps in, its ID counts up ---
@@ -152,7 +180,7 @@ export function initStory(stage, { reduced }) {
   const zoomFrom = segs.find((g) => g.key === 'hello').h1 - 10, zoomEnd = segs.find((g) => g.key === 'boot').h0 - 30;
   let callBeat = null, lastGraphQ = {};
   function apply(p) {
-    const x = p * total;
+    const x = fromScroll(p * length);
     S.k = keyAt(x);
     let call = null, live = null;
     for (const pn of panels) {
@@ -195,24 +223,23 @@ export function initStory(stage, { reduced }) {
     if (scalebar && sb !== scalebar.classList.contains('on')) scalebar.classList.toggle('on', sb);
     palette(x);
   }
-  // A beat with words holds its dealt palette, coming in over the camera's arrival and going out as it
-  // leaves; everywhere else the stage is the plain block. The words take the palette's colours (data-pal).
+  // Each beat's palette holds from the end of one wipe to the start of the next; the words take it (data-pal),
+  // switching halfway through a wipe, while no words are up.
   let lastDuo = '';
   function palette(x) {
-    let pal = 'base', e = 0;
-    for (const pn of panels) {
-      const name = palettes.story[pn.g.key], { h0, h1, final } = pn.g;
-      if (!name || x <= h0 - 30 || (!final && x >= h1 + 30)) continue;
-      pal = name;
-      e = x < h0 ? (x - h0 + 30) / 30 : final || x <= h1 ? 1 : 1 - (x - h1) / 30;
-      e = e * e * (3 - 2 * e);
+    let pal = palettes.story[beats[0].g.key], next = pal, f = 0;
+    for (const w of wipes) {
+      if (x >= w.w1) { pal = next = w.to; continue; }
+      if (x > w.w0) { pal = w.from; next = w.to; f = (x - w.w0) / (w.w1 - w.w0); }
+      break;
     }
-    const c = palettes.colours(pal), key = `${c}|${e.toFixed(3)}`;
+    const light = document.documentElement.dataset.theme === 'light', key = `${light}|${pal}|${next}|${f.toFixed(4)}`;
     if (key === lastDuo) return;
     lastDuo = key;
     // The shader wants the dark colour first: the ground in the dark theme, the ink in the light one.
-    if (c) stage?.setDuo(...(document.documentElement.dataset.theme === 'light' ? [c[1], c[0]] : c), e); else stage?.setDuo(null, null, 0);
-    story.dataset.pal = pal;
+    const duo = (name) => { const c = palettes.colours(name); return light ? [c[1], c[0]] : c; };
+    stage?.setDuo(duo(pal), duo(next), f);
+    story.dataset.pal = f > 0.5 ? next : pal;
   }
   let lastPrefill = null;
 

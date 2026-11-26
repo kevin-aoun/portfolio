@@ -34,9 +34,6 @@ export const body = { id: 'body', side: 'left', title: 'Give it a body', text: '
 // Said under every Token IDs view: the IDs are GPT-4o's, not those of the model in the story.
 export const idNote = 'IDs from OpenAI’s o200k_base (GPT-4o).';
 
-// What the contact box charges for reading a message: an illustrative per-million-token input price, in the
-// range of a mid-size frontier model.
-export const pricing = { input: 3 };
 
 export const hello = {
   lead: 'Cards on the table: I’m obsessed with building, and with seeing a product grow and get loved by people. So, I’m deployed at the intersection of Sales, Engineering / Product, and Customer Success.',

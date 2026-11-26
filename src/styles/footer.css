@@ -1,12 +1,12 @@
 /* The footer's grove: whole marks only, faint and upright, fading up from the links; one signature
-   mark in Kevin's token colour (red: "Kevin" is the red token in "Hey, I'm Kevin"). --pitch is the cell, --mark the tree's height (pitch at least 1.6x the mark). */
+   mark in the rust its yellow is paired with in Kevin's template (--acc). --pitch is the cell, --mark the tree's height (pitch at least 1.6x the mark). */
 .grove { --pitch: 56px; --mark: 28px; --rows: 5; position: relative; width: 100%; }
 .tf-defs { position: absolute; overflow: hidden; }
 .grove-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--pitch), 1fr)); grid-auto-rows: var(--pitch); height: calc(var(--rows) * var(--pitch)); overflow: hidden; -webkit-mask-image: linear-gradient(to top, #000 20%, rgba(0, 0, 0, 0.45)); mask-image: linear-gradient(to top, #000 20%, rgba(0, 0, 0, 0.45)); touch-action: manipulation; }
 .tc { display: grid; place-items: center; color: var(--ink); opacity: 0.14; transform-origin: 54.5% 82%; /* the trunk's foot */
   transform: rotate(calc(var(--lean, 0) * 1deg)) scale(calc(var(--in, 1) * var(--grow, 1))); }
 .tc svg { width: calc(var(--mark) * 0.87); height: var(--mark); fill: currentColor; overflow: visible; }
-.tc.acc { color: var(--c3); opacity: 1; }
+.tc.acc { color: var(--acc); opacity: 1; }
 /* The grove's secret (field.js): a pinned tree holds its colour and glow; five in order turn the whole grove
    gold, rippling out from the last (--d), the other trees fainter than the five so the grid isn't heavy.
    Gold: bright and warm on the dark page, deeper on paper, both clear of the amber token. */
@@ -16,3 +16,11 @@
 .won .tc { color: var(--gold); transition: color 300ms ease, opacity 300ms ease, filter 300ms ease; transition-delay: calc(var(--d, 0) * 1ms); }
 .won .tc:not(.pin) { opacity: 0.6; filter: drop-shadow(0 0 4px color-mix(in srgb, currentColor 35%, transparent)); }
 @media (max-width: 640px) { .grove { --pitch: 40px; --mark: 20px; --rows: 4; } }
+
+/* The grove's puzzle needs five colours told apart, so the footer keeps the token colours over its palette. */
+.foot[data-pal] { --c0: #8965fe; --c1: #51e26d; --c2: #faaa07; --c3: #fb2438; --c4: #04b6ee; }
+[data-theme="light"] .foot[data-pal] { --c0: #7021f3; --c1: #00750b; --c2: #965400; --c3: #c90b26; --c4: #006a9c; }
+/* The signature mark: on paper the template's own rust; on the dark side, where the rust is the ground, the same
+   hue (OKLCH 35) lifted to the most vivid lightness that still keeps 3:1 on it. */
+.foot[data-pal] { --acc: #ff6a46; }
+[data-theme="light"] .foot[data-pal] { --acc: #842300; }

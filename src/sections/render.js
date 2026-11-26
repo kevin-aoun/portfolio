@@ -1,9 +1,8 @@
 // Certifications, projects, writing, work, contact and the footer, rendered to static HTML at build time (vite.config.js)
 // and by the bench in dev/sections.html. Their look lives in styles/sections.css, their motion in motion.js.
 import { fieldMarkup } from '../footer/field.js';
-import { person, work, credentials, certifications, projects, writing, pricing, idNote } from '../content.js';
+import { person, work, credentials, certifications, projects, writing, idNote } from '../content.js';
 import { tokenMarkup, tokenSwitch } from '../tokens.js';
-import { cost } from '../contact.js';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const ext = (href) => (href.startsWith('http') ? ' target="_blank" rel="noopener"' : '');
@@ -51,7 +50,7 @@ const trace = () => `
   </div>`;
 
 export const workSection = () => `
-<section class="sec sec-work" id="work" aria-labelledby="work-title">
+<section class="sec sec-work" id="work" data-pal="azure" aria-labelledby="work-title">
   <h2 id="work-title">Work</h2>
   ${trace()}
   <div class="work-body">
@@ -75,7 +74,7 @@ export const workSection = () => `
 // token colour instead (never a made-up badge). The name is in the text, so the badge image is decorative.
 const initials = (s) => s.split(/\s+/).filter((w) => /^[A-Z]/.test(w)).map((w) => w[0]).join('').slice(-3); // NVIDIA Deep Learning Institute: DLI
 export const certificationsSection = () => `
-<section class="sec sec-certs" id="certifications" aria-labelledby="certs-title">
+<section class="sec sec-certs" id="certifications" data-pal="forest" aria-labelledby="certs-title">
   <h2 id="certs-title">Certifications</h2>
   <ul class="certs hues">${certifications.map((c) => `
     <li class="cert">
@@ -144,10 +143,11 @@ const art = (p, cls) => p.name === 'Live avatar' ? `<canvas class="art orb${cls}
 const where = (href) => (href.includes('github.com') ? 'on GitHub' : href.includes('arxiv.org') ? 'the paper on arXiv' : 'opens the project');
 
 export const projectsSection = () => `
-<section class="sec sec-projects" id="projects" aria-labelledby="projects-title">
-  <h2 id="projects-title">Projects</h2>
-  <p class="sec-lead">A mix of research and things I built because I wanted them to exist.</p>
+<section class="sec sec-projects" id="projects" data-pal="aubergine" aria-labelledby="projects-title">
   <div class="pj">
+    <div class="pj-main">
+    <h2 id="projects-title">Projects</h2>
+    <p class="sec-lead">A mix of research and things I built because I wanted them to exist.</p>
     <ul class="pj-list hues">${projects.map((p, i) => `
       <li class="pj-row${i ? '' : ' on'}">
         <p class="pj-head">${p.href ? `<a class="pj-name" href="${p.href}"${ext(p.href)}>${esc(p.name)}<span class="sr-only">, ${where(p.href)}</span></a>` : `<span class="pj-name">${esc(p.name)}</span>`}<span class="pj-meta">${esc(p.kind)} · ${esc(p.lang)}</span></p>
@@ -155,6 +155,7 @@ export const projectsSection = () => `
         ${art(p, ' pj-inline')}
       </li>`).join('')}
     </ul>
+    </div>
     <div class="pj-dots">${projects.map((p, i) => `<button type="button" aria-label="Show ${esc(p.name)}"${i ? '' : ' aria-current="true"'}></button>`).join('')}</div>
     <div class="pj-stage hues" aria-hidden="true">${projects.map((p, i) => {
       const cls = `pj-card${i ? '' : ' on'}`, body = `${art(p, '')}<p class="pj-title">${esc(p.name)}</p>`;
@@ -169,7 +170,7 @@ export const projectsSection = () => `
 
 // ---- Writing: the posts, newest first.
 export const writingSection = () => `
-<section class="sec sec-writing" id="writing" aria-labelledby="writing-title">
+<section class="sec sec-writing" id="writing" data-pal="wine" aria-labelledby="writing-title">
   <h2 id="writing-title">Writing</h2>
   <div class="wr">
     <div class="wr-group">
@@ -189,9 +190,9 @@ const SAMPLE = {
 };
 
 export const contactSection = () => `
-<section class="sec sec-contact" id="contact" aria-labelledby="contact-title">
+<section class="sec sec-contact" id="contact" data-pal="rust" aria-labelledby="contact-title">
   <h2 id="contact-title">Write to me</h2>
-  <p class="ct-lead">Type a message. You’ll see it the way a model reads it, and what reading it costs.</p>
+  <p class="ct-lead">Type a message. You’ll see it the way a model reads it.</p>
   <div class="ct">
     <form class="composer" action="mailto:${person.email}" method="post" enctype="text/plain">
       <label for="msg">Your message</label>
@@ -200,12 +201,11 @@ export const contactSection = () => `
         <dl class="counts">
           <div><dt>Tokens</dt><dd data-c="tokens">0</dd></div>
           <div><dt>Characters</dt><dd data-c="chars">0</dd></div>
-          <div><dt>Cost to read</dt><dd data-c="cost">${cost(0)}</dd></div>
         </dl>
         <p class="sr-only" role="status" aria-live="polite" data-c="say"></p>
         <p class="tokview" id="msg-tokens">${tokenMarkup(SAMPLE.tokens)}</p>
         <p class="idnote">${esc(idNote)}</p>
-        <div class="reader-foot">${tokenSwitch('msg-tokens')}<p class="rate">At an illustrative $${pricing.input} per million input tokens</p></div>
+        <div class="reader-foot">${tokenSwitch('msg-tokens')}</div>
       </div>
       <button class="btn" type="submit">Send by email</button>
       <p class="ct-sent" hidden>Didn’t open? <button type="button">Copy the message</button> and send it to ${person.email}.</p>
@@ -219,7 +219,8 @@ export const contactSection = () => `
 
 // The footer: a grove of Kevin's tree mark (src/footer/field.js), its one coloured tree right over the ©.
 export const footer = () => `
-<footer class="foot">
+<footer class="foot" data-pal="rust">
   ${fieldMarkup()}
-  <p class="foot-line hues"><span>© ${today.getFullYear()} ${esc(person.name)}, ${esc(person.role)} in Beirut</span></p>
+  <p class="foot-line">© ${today.getFullYear()} ${esc(person.name)}, ${esc(person.role)} in Beirut</p>
+  <p class="foot-note">I can’t help engineering everything around me, even the colour spaces on this website.</p>
 </footer>`;

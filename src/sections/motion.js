@@ -95,7 +95,7 @@ function timeline(reduced) {
   });
 }
 
-// Projects: the row you point at, focus or scroll past the middle of the screen brings up its card.
+// Projects: the row you point at or focus brings up its card; scrolling, the row level with the square's middle does.
 function projectCards(reduced) {
   const rows = [...document.querySelectorAll('.pj-row')];
   const cards = [...document.querySelectorAll('.pj-card')];
@@ -113,12 +113,16 @@ function projectCards(reduced) {
     r.addEventListener('focusin', () => pick(i));
   });
   // Scrolling steers only while the reader is not pointing at or tabbing through the list.
-  const list = rows[0].parentElement;
-  const io = new IntersectionObserver((es) => {
-    if (list.matches(':hover, :focus-within')) return;
-    es.forEach((e) => e.isIntersecting && pick(rows.indexOf(e.target)));
-  }, { rootMargin: '-45% 0px -45% 0px' });
-  rows.forEach((r) => io.observe(r));
+  const list = rows[0].parentElement, stage = document.querySelector('.pj-stage');
+  const level = () => {
+    const s = stage.getBoundingClientRect();
+    if (!s.height || s.bottom < 0 || s.top > innerHeight || list.matches(':hover, :focus-within')) return; // hidden (phones) or off screen
+    const y = s.top + s.height / 2;
+    const gap = (r) => { const b = r.getBoundingClientRect(); return Math.max(b.top - y, y - b.bottom, 0); };
+    pick(rows.reduce((best, r, k) => (gap(r) < gap(rows[best]) ? k : best), 0));
+  };
+  addEventListener('scroll', level, { passive: true });
+  addEventListener('resize', level);
 }
 
 // Work: a role's name sits on its bar when it fits, else beside the bar where the row is empty, else above it

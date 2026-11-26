@@ -71,13 +71,16 @@
 .pj-name:hover, .posts a:hover { color: var(--hue); text-decoration-color: currentColor; }
 
 /* ---- Projects: the index and the card that follows it. */
-.pj { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: clamp(40px, 6vw, 112px); align-items: start; }
+/* The heading sits in the list's column so the square starts level with it, in full view; from there it holds the
+   middle of the screen (its own width, in cqw of the grid, sets how far down that is) and the row level with its
+   middle is the one it shows (motion.js). */
+.pj { --pj-gap: clamp(40px, 6vw, 112px); container-type: inline-size; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--pj-gap); align-items: start; }
 .pj-row { padding: 0 0 clamp(32px, 3.4vw, 48px); }
 .pj-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 24px; max-width: none; }
 .pj-name { font-size: var(--step-lead); font-weight: 500; }
 .pj-meta { font-size: var(--step-small); color: var(--muted); }
 .pj-text { margin-top: 8px; max-width: 52ch; }
-.pj-stage { position: sticky; top: calc(var(--bar-top) + var(--bar-h) + 24px); aspect-ratio: 1; border-radius: var(--radius-panel); background: var(--glass); border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(24px) saturate(1.6); backdrop-filter: blur(24px) saturate(1.6); }
+.pj-stage { position: sticky; top: max(calc(var(--bar-top) + var(--bar-h) + 16px), calc(50svh - (100cqw - var(--pj-gap)) * 5 / 24)); aspect-ratio: 1; border-radius: var(--radius-panel); background: var(--glass); border: 1px solid var(--glass-edge); -webkit-backdrop-filter: blur(24px) saturate(1.6); backdrop-filter: blur(24px) saturate(1.6); }
 .pj-card { position: absolute; inset: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto auto; padding: clamp(24px, 2.6vw, 40px); opacity: 0; visibility: hidden; transition: opacity 280ms var(--ease-out), visibility 280ms; }
 .pj-card.on { opacity: 1; visibility: visible; }
 a.pj-card { text-decoration: none; }
@@ -97,6 +100,8 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
 .art .sf { stroke: var(--faint); }
 @media (min-width: 960px) and (scripting: enabled) {
   .pj-row.on .pj-name { color: var(--hue); }
+  /* Room under the list for the square to travel down until its middle is level with the last row (about 176px tall). */
+  .pj-main { padding-bottom: max(0px, calc((100cqw - var(--pj-gap)) * 5 / 24 - 88px)); }
 }
 
 /* ---- Writing: the heading holds the left of the grid, the posts the right. */
@@ -125,7 +130,6 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
    (0.8 keeps every token at AA contrast in both themes). */
 .reader.sample .tk { opacity: 0.8; }
 .reader-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
-.rate { font-size: var(--step-small); color: var(--muted); }
 .composer .btn { justify-self: start; margin-top: 16px; }
 .ct-sent { font-size: var(--step-small); color: var(--muted); }
 .ct-sent button { display: inline-block; padding: 8px 0; margin: -8px 0; border: 0; background: none; color: var(--ink); font-weight: 500; text-decoration: underline; text-decoration-color: var(--hue); text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; cursor: pointer; }
@@ -145,6 +149,7 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
 /* The grove grows right up to the contact band; its faded top rows are the only rest before the footer. */
 .foot { padding: clamp(16px, 2vw, 28px) var(--margin) clamp(28px, 3vw, 44px); }
 .foot-line { margin-top: 28px; font-size: var(--step-small); color: var(--muted); }
+.foot-note { margin-top: 4px; font-size: var(--step-small); color: var(--muted); }
 
 
 /* Below 1100px the trace takes the full width and each organisation's name its own line above its row,
@@ -221,10 +226,12 @@ a.pj-card:hover .pj-repo { color: var(--hue); }
 }
 
 /* The palettes (src/palettes.js): every section is a block in its own colours, full width, with the template's paper
-   grain over its ground and under its words. The contact band and the footer share one plain block. Bars on
+   grain over its ground and under its words. The contact band and the footer share one block. Bars on
    the trace go lighter in a palette block, so the ink labels on them still read. */
 .sec, .foot { position: relative; isolation: isolate; background-color: var(--bg); }
+/* Writing is short: snapped to its heading it still fills the screen, so Work doesn't show under it. */
+.sec-writing { min-height: calc(100svh + var(--gap-section) - var(--bar-top) - var(--bar-h) - 24px); } /* 24px under: the snap and a jump to the heading land 24px apart */
 .sec { padding-top: var(--gap-section); }
 .sec::before, .foot::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: var(--grain); mix-blend-mode: overlay; opacity: 0.6; pointer-events: none; }
-[data-pal]:not([data-pal="base"]) .tbar { background: color-mix(in srgb, var(--hue) 22%, transparent); }
-[data-pal]:not([data-pal="base"]) .tbar.hot { background: var(--hue); }
+[data-pal] .tbar { background: color-mix(in srgb, var(--hue) 22%, transparent); }
+[data-pal] .tbar.hot { background: var(--hue); }

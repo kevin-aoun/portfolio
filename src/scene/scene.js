@@ -89,7 +89,7 @@ uniform vec2 texel; uniform vec3 ink; uniform vec3 hue[5]; uniform vec3 bg; unif
 uniform float cNear; uniform float cFar; uniform float fogNear; uniform float fogFar; uniform float vignette; uniform vec2 warm; uniform float hueRef[5]; uniform vec3 hueDir[5];
 uniform vec3 bgS; uniform vec3 gridInk; uniform vec2 gridA; uniform float viewTop;
 uniform sampler2D tGrid; uniform vec4 gridDims; uniform float gridH; uniform float dpr; uniform sampler2D tGlyph;
-uniform vec3 duoBg; uniform vec3 duoInk; uniform float duoMix;
+uniform vec3 duoBg; uniform vec3 duoInk; uniform float duoMix; uniform vec3 duoBg2; uniform vec3 duoInk2; uniform float duoWipe; uniform float dim;
 varying vec2 vUv;
 float lin(float d){ return cNear + d * (cFar - cNear); }
 vec3 toLin(vec3 c){ return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(vec3(0.04045), c)); }
@@ -132,6 +132,7 @@ void main(){
   // cell size in CSS px). At rest a faint dot; inked, a glyph down the ramp . : (the stroke's own hatching) + #,
   // each cell's grain nudging it a step so a stroke's edge frays. Now and then an inked cell takes a token
   // colour instead of the ink, as the footer's trees do. gridA: the alpha at rest and fully inked.
+  float bc = 0.; // the brush's coverage of this pixel, for the palettes to ink below
   if (empty) {
     vec2 cell = floor(px / gridDims.zw), local = fract(px / gridDims.zw);
     vec2 m = texture2D(tGrid, (cell + 0.5) / gridDims.xy).rg;
@@ -147,13 +148,27 @@ void main(){
     }
     float cov = texture2D(tGlyph, vec2((g + local.x) / ${GLYPHS.length}., local.y)).r;
     col = toLin(mix(groundS, tint, a * cov));
+    // In a palette the brush is drawn after the remap, in the palette's own ink, a step stronger than on the
+    // plain theme: remapped by brightness, its faint strokes would sink into the ground.
+    if (duoMix > 0.) { col = ground; bc = cov * mix(0.12, 0.9, m.r); }
   }
   // The palettes (src/palettes.js): the drawing in one template's two colours. Brightness sets each pixel's place between
   // its dark colour (duoBg) and its light one (duoInk), in sRGB as the page mixes: on the dark theme the ground
   // is the dark one and lines go to ink; on paper the ink is the dark one and the paper goes to the ground.
+  // Dimmed (the hello's transistor): the drawing fades towards the ground, before the palettes take it.
+  col = mix(col, ground, dim);
+  // Between two beats the next palette (duoBg2, duoInk2) wipes up the screen as duoWipe goes from 0 to 1: its edge
+  // runs along the brush's character cells, each cell crossing at its own random place within five rows, so the
+  // edge frays the way a stroke of the brush does.
   if (duoMix > 0.) {
-    float ls = pow(max(dot(col, vec3(0.2126, 0.7152, 0.0722)), 0.), 1. / 2.2);
-    col = mix(col, toLin(mix(duoBg, duoInk, smoothstep(0.06, 0.8, ls))), duoMix);
+    float ls = smoothstep(0.06, 0.8, pow(max(dot(col, vec3(0.2126, 0.7152, 0.0722)), 0.), 1. / 2.2));
+    vec2 cell = floor(px / gridDims.zw);
+    float edge = mix(gridH / dpr + 56., -56., duoWipe), cy = (cell.y + 0.5) * gridDims.w - viewTop;
+    bool nb = cy > edge + (fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.545) - 0.5) * 90.;
+    vec3 lo = nb ? duoBg2 : duoBg, hi = nb ? duoInk2 : duoInk, duo = mix(lo, hi, ls);
+    // The brush's ink is the end away from the ground: the light colour on the dark theme, the dark one on paper.
+    duo = mix(duo, dot(bgS, vec3(0.2126, 0.7152, 0.0722)) < 0.5 ? hi : lo, bc);
+    col = mix(col, toLin(duo), duoMix);
   }
   gl_FragColor = vec4(col, 1.);
   #include <colorspace_fragment>
@@ -209,6 +224,7 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     tGrid: { value: null }, gridDims: { value: new THREE.Vector4(1, 1, CW, CH) }, gridH: { value: 1 }, dpr: { value: 1 }, tGlyph: { value: null },
     bgS: { value: new THREE.Vector3() }, gridInk: { value: new THREE.Vector3() }, gridA: { value: new THREE.Vector2() }, viewTop: { value: 0 },
     duoBg: { value: new THREE.Vector3() }, duoInk: { value: new THREE.Vector3() }, duoMix: { value: 0 },
+    duoBg2: { value: new THREE.Vector3() }, duoInk2: { value: new THREE.Vector3() }, duoWipe: { value: 0 }, dim: { value: 0 },
   };
   const quadMat = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: U, depthTest: false, depthWrite: false });
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), quadMat);
@@ -723,7 +739,7 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     syncGrid();
     U.viewTop.value = canvas.getBoundingClientRect().top;
     hoverGate();
-    canvas.style.opacity = String(1 - params.dim * 0.8);
+    U.dim.value = params.dim * 0.8;
     // Colour pass, then normals and depth, then the edge shader to the screen.
     const ov = D.overlay.visible, hg = D.hbmGlow.visible, mc = D.memCells.visible;
     camera.layers.set(0);
@@ -778,12 +794,14 @@ export function createStage(canvas, { reducedMotion = false, theme = 'dark' } = 
     resize() { resize(); bakeKeys(); }, applyTheme, start, stop, mountOverlays,
     setCallouts(beat) { if (beat !== callBeat) { callBeat = beat; assign = null; } },
     setPanelRect(r) { panelRect = r; },
-    // Palettes: a template's dark and light colour (hex) and how far the drawing has gone into them (0: none).
-    setDuo(bg, ink, mix) {
-      U.duoMix.value = mix;
-      if (!mix) return;
-      const a = new THREE.Color(bg).getRGB({}, THREE.SRGBColorSpace), b = new THREE.Color(ink).getRGB({}, THREE.SRGBColorSpace);
-      U.duoBg.value.set(a.r, a.g, a.b); U.duoInk.value.set(b.r, b.g, b.b);
+    // Palettes: the drawing in a template's dark and light colour ([dark, light], hex), and the next one wiping in
+    // over it as f goes from 0 to 1. Without one the drawing keeps the theme's own colours.
+    setDuo(a, b = a, f = 0) {
+      U.duoMix.value = a ? 1 : 0;
+      if (!a) return;
+      const set = (v, hex) => { const c = new THREE.Color(hex).getRGB({}, THREE.SRGBColorSpace); v.set(c.r, c.g, c.b); };
+      set(U.duoBg.value, a[0]); set(U.duoInk.value, a[1]); set(U.duoBg2.value, b[0]); set(U.duoInk2.value, b[1]);
+      U.duoWipe.value = f;
     },
     setBands(b) { bands = b; }, // a phone on its side frames a key from its card's top
     renderOnce() { render(performance.now()); },

@@ -1,10 +1,8 @@
 // The live thing: type a message and see it the way a model reads it, in the same tokenizer view as the
-// story (OpenAI's token colours, a Text / Token IDs switch), with what reading it costs; then send it by email.
-import { person, pricing } from './content.js';
+// story (a Text / Token IDs switch), with how many tokens and characters it is; then send it by email.
+import { person } from './content.js';
 import { tokenNodes } from './tokens.js';
 
-// What a model pays to read n tokens at the page's illustrative input price, e.g. "$0.00003".
-export const cost = (n) => ((n * pricing.input) / 1e6).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumSignificantDigits: 2 });
 const num = (n) => n.toLocaleString('en-US');
 
 export function initContact() {
@@ -17,7 +15,7 @@ export function initContact() {
   const sample = view.innerHTML; // the placeholder's tokens, shown (faded, counted as nothing) while the field is empty
   let worker = null, busy = false, ready = false, timer = 0, sayTimer = 0;
 
-  const counts = (tokens, chars, money) => { out.tokens.textContent = tokens; out.chars.textContent = chars; out.cost.textContent = money; };
+  const counts = (tokens, chars) => { out.tokens.textContent = tokens; out.chars.textContent = chars; };
 
   // o200k_base is about 1 MB gzipped and slow to unpack, so it loads only once someone is about to write,
   // in a worker, so the field never waits for it.
@@ -34,7 +32,7 @@ export function initContact() {
     if (text !== area.value) return update();
     const piece = new Map(ids.map((id, i) => [id, pieces[i]]));
     view.replaceChildren(...tokenNodes(ids, ([id]) => piece.get(id)));
-    counts(num(ids.length), num(text.length), cost(ids.length));
+    counts(num(ids.length), num(text.length));
     // Screen readers hear the totals once the typing pauses, not on every key.
     clearTimeout(sayTimer);
     sayTimer = setTimeout(() => { out.say.textContent = `${num(ids.length)} tokens, ${num(text.length)} characters.`; }, 1000);
@@ -45,7 +43,7 @@ export function initContact() {
     worker = null; // offline or blocked: the next keystroke tries again
     busy = false;
     view.textContent = 'The tokenizer did not load. Your message will still send.';
-    counts('–', num(area.value.length), '–');
+    counts('–', num(area.value.length));
   }
 
   function update() {
@@ -54,12 +52,12 @@ export function initContact() {
     reader.classList.toggle('sample', !text);
     if (!text) {
       view.innerHTML = sample;
-      counts('0', '0', cost(0));
+      counts('0', '0');
       out.say.textContent = '';
       return;
     }
     // Until the tokenizer is in, the message shows as plain text and only its length is known.
-    if (!ready) { view.textContent = text; counts('…', num(text.length), '…'); }
+    if (!ready) { view.textContent = text; counts('…', num(text.length)); }
     encode();
   }
 

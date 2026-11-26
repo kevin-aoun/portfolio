@@ -46,7 +46,7 @@ const helloPanel = () => `
 
 export const story = () => `
 <h1 class="sr-only">${person.name}, ${person.role}. From one transistor to a robot.</h1>
-<section class="story" id="top" aria-label="From one transistor to a robot">
+<section class="story" id="top" data-pal="rust" aria-label="From one transistor to a robot">
   <div class="stage">
     <canvas class="gl" aria-hidden="true"></canvas>
     <svg class="leaders" aria-hidden="true"></svg>

@@ -13,19 +13,19 @@ import { initOrbs } from './sections/orb.js';
 import { initField } from './footer/field.js';
 import { bindTokenSwitches } from './tokens.js';
 import { initBrush } from './brush.js';
-import { initPalettes } from './palettes.js';
+import { initPalettes, followBlocks } from './palettes.js';
 
 const root = document.documentElement;
 root.classList.add('js');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let stage = null, story = null;
+let stage = null, story = null, edges = null;
 
 async function boot() {
   initBrush();
   initPalettes();
   bindTokenSwitches();
   // The palettes have a side for each theme, so a new theme repaints them too.
-  initTheme((t) => { stage?.applyTheme(t); story?.repaint(); });
+  initTheme((t) => { stage?.applyTheme(t); story?.repaint(); edges?.(); });
   // The 3D chunk starts loading now; only the story waits for it, the sections below it do not.
   const scene = import('./scene/scene.js');
   initContact();
@@ -47,6 +47,7 @@ async function boot() {
     stage = null;
   }
   story = initStory(stage, { reduced });
+  edges = followBlocks();
   keepPlace();
   document.fonts?.ready.then(() => story.rebuild());
 }
